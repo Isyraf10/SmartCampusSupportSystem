@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Identity Service (Authentication Module)
+  identity-service:
+    build:
+      context: ./IdentityService
+      dockerfile: Dockerfile
+    container_name: identity-service
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGO_URI=mongodb://mongodb:27017/smart-campus-identity
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
+    env_file:
+      - .env.local
+    networks:
+      - smart-campus-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/v1/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - mongodb
+    volumes:
+      - ./IdentityService:/app
+      - /app/node_modules
+
+  # Frontend (React with Vite)
+  frontend:
+    build:
+      context: ./IdentityServiceUI
+      dockerfile: Dockerfile
+    container_name: identity-service-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:5000/api/v1}
+      - NODE_ENV=production
+    env_file:
+      - .env.local
+    networks:
+      - smart-campus-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    depends_on:
+      - identity-service
+
+  # MongoDB Service
+  mongodb:
+    image: mongo:latest
+    container_name: smart-campus-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=smart-campus
+    networks:
+      - smart-campus-network
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  smart-campus-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
