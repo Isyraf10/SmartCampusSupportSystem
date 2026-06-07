@@ -17,3 +17,10 @@
 2026-06-07T05:04:12.137Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"your_super"}
 2026-06-07T05:04:12.139Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"your_super"}
 2026-06-07T05:05:38.439Z jwtUtilLoaded {"jwtSecretConfigured":true,"jwtRefreshSecretConfigured":true}
+2026-06-07T19:30:05.374Z jwtUtilLoaded {"jwtSecretConfigured":true,"jwtRefreshSecretConfigured":true}
+2026-06-07T19:43:27.362Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"your_super"}
+2026-06-07T19:43:27.388Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"your_super"}
+2026-06-07T19:43:46.631Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"your_super"}
+2026-06-07T19:43:46.638Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"your_super"}
+2026-06-07T19:44:41.057Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"your_super"}
+2026-06-07T19:44:41.064Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"your_super"}
