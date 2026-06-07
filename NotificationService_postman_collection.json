@@ -1,0 +1,167 @@
+{
+  "info": {
+    "name": "NotificationService - SCSS",
+    "description": "Event & Notification Service API Collection — Smart Campus Support System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:5004" },
+    { "key": "token", "value": "PASTE_YOUR_TOKEN_HERE" },
+    { "key": "event_id", "value": "evt-001" },
+    { "key": "notif_id", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "General",
+      "item": [
+        {
+          "name": "Welcome",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/", "host": ["{{base_url}}"], "path": [""] }
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/health", "host": ["{{base_url}}"], "path": ["api","v1","health"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Get All Events (Public)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/events", "host": ["{{base_url}}"], "path": ["api","v1","events"] }
+          }
+        },
+        {
+          "name": "Get Event by ID (Public)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/v1/events/{{event_id}}", "host": ["{{base_url}}"], "path": ["api","v1","events","{{event_id}}"] }
+          }
+        },
+        {
+          "name": "Create Event (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Convocation Ceremony 2026\",\n  \"description\": \"Annual convocation for graduating students.\",\n  \"location\": \"UMT Main Hall\",\n  \"date\": \"2026-07-15\",\n  \"time\": \"09:00\",\n  \"organizer\": \"Registrar Office\",\n  \"capacity\": 1000\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/events", "host": ["{{base_url}}"], "path": ["api","v1","events"] }
+          }
+        },
+        {
+          "name": "Update Event (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Convocation Ceremony 2026 (Updated)\",\n  \"capacity\": 1200\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/events/{{event_id}}", "host": ["{{base_url}}"], "path": ["api","v1","events","{{event_id}}"] }
+          }
+        },
+        {
+          "name": "Delete Event (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/events/{{event_id}}", "host": ["{{base_url}}"], "path": ["api","v1","events","{{event_id}}"] }
+          }
+        },
+        {
+          "name": "Register for Event (Protected)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/events/{{event_id}}/register", "host": ["{{base_url}}"], "path": ["api","v1","events","{{event_id}}","register"] }
+          }
+        },
+        {
+          "name": "Cancel Registration (Protected)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/events/{{event_id}}/register", "host": ["{{base_url}}"], "path": ["api","v1","events","{{event_id}}","register"] }
+          }
+        },
+        {
+          "name": "Get Event Registrations (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/events/{{event_id}}/registrations", "host": ["{{base_url}}"], "path": ["api","v1","events","{{event_id}}","registrations"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get My Notifications (Protected)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/notifications/my", "host": ["{{base_url}}"], "path": ["api","v1","notifications","my"] }
+          }
+        },
+        {
+          "name": "Mark Notification as Read (Protected)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/notifications/{{notif_id}}/read", "host": ["{{base_url}}"], "path": ["api","v1","notifications","{{notif_id}}","read"] }
+          }
+        },
+        {
+          "name": "Delete Notification (Protected)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/notifications/{{notif_id}}", "host": ["{{base_url}}"], "path": ["api","v1","notifications","{{notif_id}}"] }
+          }
+        },
+        {
+          "name": "Get All Notifications (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": { "raw": "{{base_url}}/api/v1/notifications", "host": ["{{base_url}}"], "path": ["api","v1","notifications"] }
+          }
+        },
+        {
+          "name": "Send Manual Notification (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"USER_ID_HERE\",\n  \"type\": \"REMINDER\",\n  \"message\": \"Reminder: Your facility booking is tomorrow at 10:00 AM.\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/v1/notifications/send", "host": ["{{base_url}}"], "path": ["api","v1","notifications","send"] }
+          }
+        }
+      ]
+    }
+  ]
+}
