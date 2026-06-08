@@ -1,38 +1,5 @@
 # Quick Start Guide - Identity Service
 
-## Step 1: Start the Backend (Identity Service)
-
-```powershell
-cd "C:\Users\isyra\Documents\$Sem 4\Software Architecture\ProjectAPI\IdentityService"
-npm run dev
-```
-
-**Expected Output:**
-```
-✓ Server running on port 5000
-✓ MongoDB connected
-```
-
-## Step 2: Start the Frontend
-
-```powershell
-cd "C:\Users\isyra\Documents\$Sem 4\Software Architecture\ProjectAPI\frontend"
-python -m http.server 8000
-```
-
-**Expected Output:**
-```
-Serving HTTP on 0.0.0.0 port 8000
-```
-
-## Step 3: Open Browser
-
-Navigate to: `http://localhost:8000`
-
-You should see:
-- Login page with email/password form
-- "Create one here" link to registration page
-
 ## User Flow
 
 ### To Test Login:
@@ -50,16 +17,16 @@ You should see:
 
 ```
 ┌──────────────────────────────────────────┐
-│   Frontend (HTML + Vanilla JS)           │
+│   Frontend (React + Vanilla JS)          │
 │   http://localhost:8000                  │
 │                                          │
-│  ┌──────────────────────────────────┐   │
-│  │  index.html (Login Page)         │   │
-│  │  register.html (Register Page)   │   │
-│  │  js/login.js                     │   │
-│  │  js/register.js                  │   │
-│  └──────────────────────────────────┘   │
-└─────────────────┬──────────────────────┘
+│  ┌──────────────────────────────────┐    │
+│  │  index.html (Login Page)         │    │
+│  │  register.html (Register Page)   │    │
+│  │  js/login.js                     │    │
+│  │  js/register.js                  │    │
+│  └──────────────────────────────────┘    │
+└─────────────────┬──────────────────────  ┘
                   │
         ┌─────────▼─────────┐
         │ POST /api/v1/auth │
