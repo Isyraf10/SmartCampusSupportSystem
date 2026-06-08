@@ -51,6 +51,15 @@
 2026-06-07T19:45:43.862Z GET /api/v1/health
 2026-06-07T19:46:13.995Z GET /api/v1/health
 2026-06-07T19:46:44.157Z GET /api/v1/health
+<<<<<<< HEAD
+2026-06-07T21:31:58.906Z POST /api/v1/auth/login
+2026-06-08T09:21:40.647Z POST /api/v1/auth/login
+2026-06-08T09:21:44.190Z POST /api/v1/auth/verify-token
+2026-06-08T09:22:35.016Z POST /api/v1/auth/login
+2026-06-08T15:57:33.212Z GET /api/v1/health
+2026-06-08T15:57:33.561Z GET /favicon.ico
+2026-06-08T16:01:53.898Z POST /api/v1/auth/login
+=======
 2026-06-07T19:47:14.347Z GET /api/v1/health
 2026-06-07T19:47:44.494Z GET /api/v1/health
 2026-06-08T07:56:59.586Z GET /api/v1/health
@@ -166,3 +175,4 @@
 2026-06-08T08:51:28.539Z GET /api/v1/health
 2026-06-08T08:51:58.687Z GET /api/v1/health
 2026-06-08T08:52:28.854Z GET /api/v1/health
+>>>>>>> 5697613a6b9f9f2017860aedb93e255de2ca7f69

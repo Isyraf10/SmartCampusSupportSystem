@@ -24,6 +24,19 @@
 2026-06-07T19:43:46.638Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"your_super"}
 2026-06-07T19:44:41.057Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"your_super"}
 2026-06-07T19:44:41.064Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"your_super"}
+<<<<<<< HEAD
+2026-06-07T21:28:08.378Z jwtUtilLoaded {"jwtSecretConfigured":true,"jwtRefreshSecretConfigured":true}
+2026-06-07T21:31:59.279Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"super_key"}
+2026-06-07T21:31:59.300Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"super_key_"}
+2026-06-08T09:20:02.279Z jwtUtilLoaded {"jwtSecretConfigured":true,"jwtRefreshSecretConfigured":true}
+2026-06-08T09:21:41.021Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"super_key"}
+2026-06-08T09:21:41.032Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"super_key_"}
+2026-06-08T09:22:35.326Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"super_key"}
+2026-06-08T09:22:35.329Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"super_key_"}
+2026-06-08T15:57:09.635Z jwtUtilLoaded {"jwtSecretConfigured":true,"jwtRefreshSecretConfigured":true}
+2026-06-08T16:01:54.457Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"super_key"}
+2026-06-08T16:01:54.481Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"super_key_"}
+=======
 2026-06-08T07:56:56.063Z jwtUtilLoaded {"jwtSecretConfigured":true,"jwtRefreshSecretConfigured":true}
 2026-06-08T07:57:37.858Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"your_super"}
 2026-06-08T07:57:37.864Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"your_super"}
@@ -52,3 +65,4 @@
 2026-06-08T08:49:39.080Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"your_super"}
 2026-06-08T08:50:46.413Z getJwtSecret {"jwtSecretConfigured":true,"jwtSecretValue":"your_super"}
 2026-06-08T08:50:46.420Z getJwtRefreshSecret {"jwtRefreshSecretConfigured":true,"jwtRefreshSecretValue":"your_super"}
+>>>>>>> 5697613a6b9f9f2017860aedb93e255de2ca7f69

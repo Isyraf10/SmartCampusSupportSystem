@@ -10,7 +10,7 @@ import './AuthPages.css';
 // TEMPATLETAK URL FRONTEND
 // Kalau dah deploy, tukar je localhost ni pergi link sebenar.
 const SERVICE_URLS = {
-    booking: 'http://localhost:3001',      // Frontend Booking Module
+    booking: 'http://localhost:5002',      // Frontend Booking Module
     itSupport: 'http://localhost:3002',    // Frontend IT/Academic Support
     notification: 'http://localhost:3003'  // Frontend Notification
 };
