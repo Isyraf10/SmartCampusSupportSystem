@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
@@ -22,7 +21,6 @@ const userRoutes = require('./routes/userRoutes');
 // Initialize Express Application
 const app = express();
 
-
 connectDB();
 
 // CORS Middleware - Allow other services to communicate
@@ -37,14 +35,8 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-
-//REQUEST LOGGING MIDDLEWARE (Optional)
-const fs = require('fs');
-const path = require('path');
-
+// REQUEST LOGGING MIDDLEWARE
 app.use((req, res, next) => {
-    const logEntry = `${new Date().toISOString()} ${req.method} ${req.path}\n`;
-    fs.appendFileSync(path.join(__dirname, 'tmp-server-requests.log'), logEntry);
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
     next();
 });
@@ -88,7 +80,6 @@ app.use(notFoundHandler);
 
 // Global Error Handler (must be last)
 app.use(errorHandler);
-
 
 // server startup
 const PORT = process.env.PORT || process.env.IDENTITY_SERVICE_PORT || 5000;
