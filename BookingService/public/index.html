@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Booking System</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; color: #333; }
+        .container { max-width: 860px; margin: auto; background: white; padding: 24px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        h1, h2 { color: #2c3e50; }
+        h2 { margin-top: 28px; margin-bottom: 12px; border-bottom: 2px solid #eee; padding-bottom: 6px; }
+        .card { border: 1px solid #e0e0e0; padding: 15px; margin-bottom: 12px; border-radius: 6px; background: #fafafa; }
+        button { background-color: #3498db; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:hover { opacity: 0.9; }
+
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .user-info { font-size: 0.95rem; color: #555; }
+
+        .admin-bar { background: #eaf4fb; border: 1px solid #aed6f1; padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; }
+        .admin-bar span { color: #1a5276; font-weight: 600; }
+
+        .btn-logout { background: #e74c3c; padding: 7px 14px; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🏛️ Smart Campus Facility Booking</h1>
+
+    <div class="topbar">
+        <p class="user-info">Logged in as: <strong id="userDisplay">Loading...</strong></p>
+        <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+    </div>
+
+    <hr>
+
+    <!-- Admin: Create Facility button — hidden for students -->
+    <div id="adminBar" style="display:none;" class="admin-bar">
+        <span>🔑 Admin Mode — You can manage facilities below</span>
+        <button onclick="openCreateFacilityModal()" style="background:#27ae60;">+ Create New Facility</button>
+    </div>
+
+    <h2>🏢 Available Facilities</h2>
+    <div id="facilitiesList">Loading facilities...</div>
+
+    <h2 id="bookingsHeader">📅 My Bookings</h2>
+    <div id="bookingsList">Loading bookings...</div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
