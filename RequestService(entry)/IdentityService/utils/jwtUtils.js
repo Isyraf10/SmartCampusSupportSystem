@@ -4,22 +4,10 @@
  */
 
 global.crypto = require('crypto');
-const fs = require('fs');
-const path = require('path');
 const jwt = require('jsonwebtoken');
 const { API_CONTRACTS } = require('../constants/apiConstants');
 
-const logDebug = (message, data) => {
-    const logPath = path.join(__dirname, '..', 'tmp-jwt-debug.log');
-    const entry = `${new Date().toISOString()} ${message} ${JSON.stringify(data)}\n`;
-    fs.appendFileSync(logPath, entry);
-};
-
-/**
- * Generate Access Token (short-lived)
- */
 const getJwtSecret = () => {
-    logDebug('getJwtSecret', { jwtSecretConfigured: !!process.env.JWT_SECRET, jwtSecretValue: process.env.JWT_SECRET?.slice(0, 10) });
     if (!process.env.JWT_SECRET) {
         throw new Error('JWT_SECRET must be configured');
     }
@@ -27,17 +15,11 @@ const getJwtSecret = () => {
 };
 
 const getJwtRefreshSecret = () => {
-    logDebug('getJwtRefreshSecret', { jwtRefreshSecretConfigured: !!process.env.JWT_REFRESH_SECRET, jwtRefreshSecretValue: process.env.JWT_REFRESH_SECRET?.slice(0, 10) });
     if (!process.env.JWT_REFRESH_SECRET) {
         throw new Error('JWT_REFRESH_SECRET must be configured');
     }
     return process.env.JWT_REFRESH_SECRET;
 };
-
-logDebug('jwtUtilLoaded', {
-    jwtSecretConfigured: !!process.env.JWT_SECRET,
-    jwtRefreshSecretConfigured: !!process.env.JWT_REFRESH_SECRET,
-});
 
 const generateAccessToken = (user) => {
     return jwt.sign(

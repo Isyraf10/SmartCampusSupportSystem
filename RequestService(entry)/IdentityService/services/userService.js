@@ -5,20 +5,10 @@ const { hashPassword, comparePassword, validateEmail, validateMatricNumber } = r
 const { generateTokens } = require('../utils/jwtUtils');
 const { API_CONTRACTS } = require('../constants/apiConstants');
 
-const fs = require('fs');
-const path = require('path');
-
-const logUserService = (message, data) => {
-    const logPath = path.join(__dirname, '..', 'tmp-user-service.log');
-    const entry = `${new Date().toISOString()} ${message} ${JSON.stringify(data)}\n`;
-    fs.appendFileSync(logPath, entry);
-};
-
 class UserService {
     // Register New User
      
     static async registerUser(userData) {
-        logUserService('registerUser start', { userData: { ...userData, password: '***', confirmPassword: '***' } });
         const { name, email, password, confirmPassword, matricNumber, role } = userData;
 
         // Validate inputs
@@ -57,12 +47,6 @@ class UserService {
         });
 
         await user.save();
-
-        logUserService('registerUser afterSave', {
-            userId: user._id,
-            jwtSecret: !!process.env.JWT_SECRET,
-            jwtRefreshSecret: !!process.env.JWT_REFRESH_SECRET,
-        });
 
         // Generate tokens
         const tokens = generateTokens(user);
