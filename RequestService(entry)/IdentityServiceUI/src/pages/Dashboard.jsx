@@ -11,8 +11,8 @@ import './AuthPages.css';
 // Kalau dah deploy, tukar je localhost ni pergi link sebenar.
 const SERVICE_URLS = {
     booking: 'http://localhost:5002',      // Frontend Booking Module
-    itSupport: 'http://localhost:3002',    // Frontend IT/Academic Support
-    notification: 'http://localhost:3003'  // Frontend Notification
+    itSupport: 'http://localhost:5001',    // Frontend IT/Academic Support
+    notification: 'http://localhost:5003'  // Frontend Notification
 };
 
 export default function Dashboard() {

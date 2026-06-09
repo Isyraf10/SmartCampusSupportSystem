@@ -21,10 +21,8 @@ const IDENTITY_VERIFY_URL =
 
 // Routes that do NOT require a token
 function isPublicRoute(path, method) {
-    if (path.startsWith('/api/v1/health'))                              return true;
-    if (path.startsWith('/api/v1/facilities') && method === 'GET')     return true;
-    // Static frontend files served from /public
-    if (path === '/' || /\.(html|js|css|ico|png)$/.test(path))        return true;
+    if (path.startsWith('/api/v1/health')) return true;
+    if (path.startsWith('/api/v1/facilities') && method === 'GET') return true;
     return false;
 }
 

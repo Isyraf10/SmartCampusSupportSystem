@@ -2,10 +2,10 @@
   "name": "booking-service",
   "version": "1.0.0",
   "description": "Campus Facility Booking Service — Node.js rewrite",
-  "main": "server.js",
+  "main": "app.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "dependencies": {
     "axios": "^1.7.2",
