@@ -5,12 +5,12 @@ import { bookingApi } from '../services/bookingService';
 export default function Home() {
   const { user, loading, logout, isAdmin } = useAuth();
   const [facilities, setFacilities] = useState([]);
-  const [bookings, setBookings] = useState([]);
-  const [error, setError] = useState('');
+  const [bookings, setBookings]     = useState([]);
+  const [error, setError]           = useState('');
 
-  const [bookingModal, setBookingModal] = useState(null);
+  const [bookingModal,  setBookingModal]  = useState(null);
   const [facilityModal, setFacilityModal] = useState(null);
-  const [editModal, setEditModal] = useState(null);
+  const [editModal,     setEditModal]     = useState(null);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -19,7 +19,7 @@ export default function Home() {
         bookingApi.getFacilities(),
         bookingApi.getBookings(isAdmin),
       ]);
-      setFacilities(Array.isArray(facData) ? facData : []);
+      setFacilities(Array.isArray(facData)  ? facData  : []);
       setBookings(Array.isArray(bookData) ? bookData : []);
       setError('');
     } catch (err) {
@@ -35,14 +35,16 @@ export default function Home() {
     return <div className="container"><p>Loading...</p></div>;
   }
 
+  // ── Booking handlers ───────────────────────────────────────────────────────
+
   const handleCreateBooking = async (e) => {
     e.preventDefault();
     const form = e.target;
     const data = {
       facilityId: bookingModal.id,
-      date: form.date.value,
-      startTime: form.startTime.value,
-      endTime: form.endTime.value,
+      date:       form.date.value,
+      startTime:  form.startTime.value,
+      endTime:    form.endTime.value,
     };
 
     if (data.startTime >= data.endTime) {
@@ -59,16 +61,28 @@ export default function Home() {
     }
   };
 
+  const handleCancelBooking = async (id) => {
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
+    try {
+      await bookingApi.cancelBooking(id);
+      loadData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Cancel failed');
+    }
+  };
+
+  // ── Facility handlers (admin only) ─────────────────────────────────────────
+
   const handleCreateFacility = async (e) => {
     e.preventDefault();
     const form = e.target;
     try {
       await bookingApi.createFacility({
-        name: form.name.value.trim(),
-        type: form.type.value.trim(),
+        name:     form.name.value.trim(),
+        type:     form.type.value.trim(),
         location: form.location.value.trim(),
         capacity: parseInt(form.capacity.value, 10),
-        active: true,
+        active:   true,
       });
       setFacilityModal(false);
       loadData();
@@ -82,11 +96,11 @@ export default function Home() {
     const form = e.target;
     try {
       await bookingApi.updateFacility(editModal.id, {
-        name: form.name.value.trim(),
-        type: form.type.value.trim(),
+        name:     form.name.value.trim(),
+        type:     form.type.value.trim(),
         location: form.location.value.trim(),
         capacity: parseInt(form.capacity.value, 10),
-        active: form.active.checked,
+        active:   form.active.checked,
       });
       setEditModal(null);
       loadData();
@@ -105,15 +119,7 @@ export default function Home() {
     }
   };
 
-  const handleCancelBooking = async (id) => {
-    if (!confirm('Are you sure you want to cancel this booking?')) return;
-    try {
-      await bookingApi.cancelBooking(id);
-      loadData();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Cancel failed');
-    }
-  };
+  // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <div className="container">
@@ -137,6 +143,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* ── Facilities list ── */}
       <h2>Available Facilities</h2>
       {facilities.length === 0 ? (
         <p>No facilities available.</p>
@@ -148,7 +155,7 @@ export default function Home() {
             <p>Status: <strong>{fac.active ? 'Active' : 'Inactive'}</strong></p>
             {isAdmin ? (
               <>
-                <button className="btn-edit" onClick={() => setEditModal(fac)}>Edit</button>
+                <button className="btn-edit"   onClick={() => setEditModal(fac)}>Edit</button>
                 <button className="btn-delete" onClick={() => handleDeleteFacility(fac.id)}>Delete</button>
               </>
             ) : fac.active ? (
@@ -162,6 +169,7 @@ export default function Home() {
         ))
       )}
 
+      {/* ── Bookings list ── */}
       <h2>{isAdmin ? 'All System Bookings (Admin View)' : 'My Bookings'}</h2>
       {bookings.length === 0 ? (
         <p>No bookings found.</p>
@@ -186,6 +194,7 @@ export default function Home() {
         ))
       )}
 
+      {/* ── Book room modal ── */}
       {bookingModal && (
         <div className="modal-overlay" onClick={() => setBookingModal(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -206,6 +215,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* ── Create facility modal (admin) ── */}
       {facilityModal && (
         <div className="modal-overlay" onClick={() => setFacilityModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
@@ -228,6 +238,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* ── Edit facility modal (admin) ── */}
       {editModal && (
         <div className="modal-overlay" onClick={() => setEditModal(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>

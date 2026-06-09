@@ -1,7 +1,18 @@
+/**
+ * config.js — bookingService frontend
+ *
+ * DASHBOARD_LOGIN_URL  — where to redirect on logout or expired token
+ * IDENTITY_VERIFY_URL  — proxied through Vite (dev) or nginx (prod)
+ *                        so the real Identity Service URL never leaks
+ *                        into compiled JS bundles
+ *
+ * In development  : Vite proxy forwards /identity → http://localhost:5000
+ * In production   : nginx upstream forwards /identity → identity-service
+ */
+
 const DASHBOARD_LOGIN_URL =
   import.meta.env.VITE_DASHBOARD_URL || 'http://localhost:3000/login';
 
-// Proxied via Vite (dev) or nginx (prod) — avoids baking backend URLs into compiled JS
 const IDENTITY_VERIFY_URL =
   import.meta.env.VITE_IDENTITY_URL || '/identity/auth/verify-token';
 

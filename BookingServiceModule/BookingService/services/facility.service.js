@@ -1,5 +1,5 @@
-const Facility = require('./facility.model');
-const Booking = require('../bookings/booking.model');
+const Facility = require('../models/facility.model');
+const Booking = require('../models/booking.model');
 const { toMinutes, timesOverlap } = require('../utils/time');
 
 function formatFacility(facility) {

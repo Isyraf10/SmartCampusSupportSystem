@@ -12,6 +12,7 @@ const router = express.Router();
 const auth = require('../middleware/authMiddleware');
 const controller = require('./booking.controller');
 
+// ALL booking operations require authentication
 router.use(auth);
 
 router.post('/', controller.create);
