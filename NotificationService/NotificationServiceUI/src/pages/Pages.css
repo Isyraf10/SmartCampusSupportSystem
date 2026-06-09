@@ -1,0 +1,88 @@
+:root {
+  --umt-blue: #003580;
+  --umt-blue-light: #1a6fe8;
+  --umt-gold: #FFD700;
+  --umt-gold-dark: #e6b800;
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --border: #d0daf5;
+  --text: #0a1628;
+  --text-muted: #5a6a8a;
+  --success: #0d9e6e;
+  --danger: #e03e3e;
+  --radius: 12px;
+  --shadow: 0 4px 20px rgba(0,53,128,0.10);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+/* AUTH */
+.auth-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--umt-blue) 0%, #001f5c 100%); }
+.auth-card { background: white; border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+.auth-header { text-align: center; margin-bottom: 2rem; }
+.umt-logo { width: 60px; height: 60px; background: var(--umt-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--umt-blue); font-size: 18px; margin: 0 auto 1rem; }
+.auth-header h1 { font-size: 20px; color: var(--umt-blue); margin-bottom: 4px; }
+.auth-header p { font-size: 13px; color: var(--text-muted); }
+
+/* DASHBOARD */
+.dashboard { min-height: 100vh; display: flex; flex-direction: column; }
+.dash-header { background: linear-gradient(135deg, var(--umt-blue), #001f5c); color: white; padding: 0 2rem; height: 65px; display: flex; align-items: center; justify-content: space-between; }
+.dash-header-left { display: flex; align-items: center; gap: 12px; }
+.umt-logo-sm { width: 38px; height: 38px; background: var(--umt-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: var(--umt-blue); font-size: 13px; }
+.dash-title { font-size: 16px; font-weight: 700; color: var(--umt-gold); }
+.dash-subtitle { font-size: 11px; color: rgba(255,255,255,0.6); }
+.dash-header-right { display: flex; align-items: center; gap: 12px; }
+.user-info { font-size: 13px; color: rgba(255,255,255,0.8); }
+.btn-logout { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+
+.dash-content { display: flex; flex: 1; }
+
+/* SIDEBAR */
+.sidebar { width: 210px; background: white; border-right: 1px solid var(--border); padding: 1.5rem 0; }
+.sidebar-section { padding: 0 1rem; }
+.sidebar-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; padding: 0 8px; }
+.sidebar-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 12px; border: none; background: transparent; border-radius: 9px; cursor: pointer; font-size: 13px; color: var(--text-muted); font-weight: 500; transition: all 0.15s; margin-bottom: 2px; font-family: inherit; }
+.sidebar-btn:hover { background: var(--bg); color: var(--umt-blue); }
+.sidebar-btn.active { background: #e8efff; color: var(--umt-blue); font-weight: 600; }
+
+/* MAIN */
+.main-content { flex: 1; padding: 2rem; overflow-y: auto; }
+.page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+.page-header h2 { font-size: 22px; color: var(--umt-blue); }
+.header-actions { display: flex; gap: 8px; }
+
+/* FORMS */
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
+.form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-size: 14px; font-family: inherit; outline: none; transition: border-color 0.2s; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--umt-blue); }
+.form-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); max-width: 500px; }
+
+/* BUTTONS */
+.btn-primary { width: 100%; background: var(--umt-blue); color: white; border: none; padding: 11px; border-radius: 9px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; }
+.btn-primary:hover { background: var(--umt-blue-light); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-outline { background: transparent; color: var(--umt-blue); border: 1.5px solid var(--border); padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: inherit; }
+.btn-outline:hover { border-color: var(--umt-blue); }
+.btn-danger-outline { background: transparent; color: var(--danger); border: 1.5px solid #ffd0d0; padding: 7px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: inherit; }
+
+/* NOTIFICATIONS */
+.notif-list { display: flex; flex-direction: column; gap: 10px; }
+.notif-item { background: white; border: 1px solid var(--border); border-left: 4px solid var(--umt-blue); border-radius: var(--radius); padding: 1rem 1.2rem; display: flex; gap: 12px; align-items: flex-start; }
+.notif-item.unread { border-left-color: var(--umt-gold); background: #fff3b0; }
+.notif-icon { width: 38px; height: 38px; background: #e8efff; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.notif-body { flex: 1; }
+.notif-type { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--umt-blue); margin-bottom: 3px; }
+.notif-message { font-size: 13.5px; line-height: 1.5; margin-bottom: 4px; }
+.notif-time { font-size: 11px; color: var(--text-muted); }
+.notif-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.notif-actions button { font-size: 11px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: white; cursor: pointer; font-weight: 600; color: var(--text-muted); font-family: inherit; }
+.notif-actions button:hover { border-color: var(--umt-blue); color: var(--umt-blue); }
+.notif-actions button.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+/* MISC */
+.error-msg { background: #fff0f0; color: var(--danger); border: 1px solid #ffd0d0; border-radius: 9px; padding: 10px 14px; margin-bottom: 1rem; font-size: 13px; cursor: pointer; }
+.loading { text-align: center; padding: 3rem; color: var(--text-muted); }
+.empty-state { text-align: center; padding: 4rem; color: var(--text-muted); }
+.empty-icon { font-size: 48px; margin-bottom: 1rem; }
