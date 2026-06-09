@@ -43,8 +43,8 @@ services:
       NODE_ENV: production
       PORT: 5000
       MONGO_URI: mongodb://mongo:27017/smart-campus-identity
-      JWT_SECRET: super_key_change_me_in_production_12345
-      JWT_REFRESH_SECRET: super_key_refresh_change_me_in_production_67890
+      JWT_SECRET: super_key
+      JWT_REFRESH_SECRET: super_key_refresh
       CORS_ORIGIN: "http://localhost:3000,http://localhost:5002"
     networks:
       - smart-campus-network

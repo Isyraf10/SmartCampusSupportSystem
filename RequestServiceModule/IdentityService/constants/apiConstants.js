@@ -58,7 +58,7 @@ const API_CONTRACTS = {
         SERVER_ERROR: 'Internal server error',
         PASSWORD_MISMATCH: 'Passwords do not match',
         INVALID_EMAIL: 'Invalid email format',
-        WEAK_PASSWORD: 'Password must be at least 8 characters',
+        WEAK_PASSWORD: 'Password must be at least 3 characters',
     },
 
     // Success Messages

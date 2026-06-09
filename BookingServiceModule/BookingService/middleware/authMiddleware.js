@@ -1,4 +1,4 @@
-/**
+/**DONE
  * authMiddleware.js — SOA Token Verification (Option A: Remote)
  *
  * Calls the Identity Service POST /api/v1/auth/verify-token

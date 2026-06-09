@@ -1,5 +1,5 @@
-const Booking = require('./booking.model');
-const Facility = require('../facilities/facility.model');
+const Booking = require('../models/booking.model');
+const Facility = require('../models/facility.model');
 const { sendAlert } = require('../middleware/notificationService');
 const { toMinutes, timesOverlap, isValidTime } = require('../utils/time');
 
