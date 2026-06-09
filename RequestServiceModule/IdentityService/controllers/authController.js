@@ -119,17 +119,27 @@ exports.refreshToken = catchAsync(async (req, res) => {
 /**
  * Verify Token
  * POST /api/v1/auth/verify-token
- * Body: { token: "..." }
+ * Header: { Authorization: "Bearer ..." }
  */
 exports.verifyToken = catchAsync(async (req, res) => {
-    const { token } = req.body;
-
-    if (!token) {
+    // FIX: read token from Authorization header, not body
+    // because all services send it as Bearer token in header
+    const authHeader = req.headers['authorization'];
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
         const { AppError } = require('../utils/errorHandler');
         throw new AppError('Token required', 400);
     }
 
-    // The middleware already verified the token if we're here
+    const token = authHeader.substring(7); // strip "Bearer "
+
+    // req.user is already attached by authMiddleware (verifyToken middleware)
+    // so we just need to confirm it's there
+    if (!req.user) {
+        const { AppError } = require('../utils/errorHandler');
+        throw new AppError('Invalid token', 401);
+    }
+
     res.status(200).json(
         RESPONSE_CONTRACT.SUCCESS(
             { valid: true, user: req.user },
