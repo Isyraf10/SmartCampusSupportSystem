@@ -14,12 +14,12 @@
 .auth-card {
     background: white;
     border-radius: 12px;
-    //box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
     padding: 40px;
     width: 100%;
     max-width: 450px;
     animation: slideIn 0.5s ease-out;
-}
+} 
 
 .auth-card-large {
     max-width: 600px;
@@ -118,7 +118,7 @@
     border-radius: 8px;
     margin-bottom: 20px;
     font-size: 14px;
-    //border-left: 4px solid #c33;
+    border-left: 4px solid #c33;
 }
 
 .auth-button {
