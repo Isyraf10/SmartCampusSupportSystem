@@ -1,0 +1,120 @@
+version: '3.8'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Smart Campus Support System — Combined docker-compose.yml
+#
+# Ports available on your machine:
+#   Frontend (UI)    → http://localhost:3000
+#   Identity Service → http://localhost:5000
+#   Booking Service  → http://localhost:5002
+#   MongoDB          → localhost:27017
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── MongoDB ──────────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7
+    container_name: smart-campus-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - smart-campus-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── Identity Service (Authentication) ────────────────────────────────────
+  identity-service:
+    build:
+      context: ./RequestService(entry)/IdentityService
+      dockerfile: Dockerfile
+    container_name: identity-service
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/smart-campus-identity
+      JWT_SECRET: super_key_change_me_in_production_12345
+      JWT_REFRESH_SECRET: super_key_refresh_change_me_in_production_67890
+      CORS_ORIGIN: "http://localhost:3000,http://localhost:5002"
+    networks:
+      - smart-campus-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/v1/health', (r) => { if (r.statusCode !== 200) throw new Error(r.statusCode) })"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Frontend (React / Vite) ──────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./RequestService(entry)/IdentityServiceUI
+      dockerfile: Dockerfile
+    container_name: identity-service-ui
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:5000/api/v1
+      NODE_ENV: production
+    networks:
+      - smart-campus-network
+    depends_on:
+      identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => { if (r.statusCode !== 200) throw new Error(r.statusCode) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # ── Booking Service ──────────────────────────────────────────────────────
+  booking-service:
+    build:
+      context: ./BookingService
+      dockerfile: Dockerfile
+    container_name: booking-service
+    restart: unless-stopped
+    ports:
+      - "5002:5002"
+    environment:
+      NODE_ENV: production
+      PORT: 5002
+      MONGO_URI: mongodb://mongo:27017/campus_booking
+      IDENTITY_SERVICE_URL: http://identity-service:5000
+      NOTIFICATION_SERVICE_URL: http://notification-service:5003
+    networks:
+      - smart-campus-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+      identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5002/api/v1/health', (r) => { if (r.statusCode !== 200) throw new Error(r.statusCode) })"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  smart-campus-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local

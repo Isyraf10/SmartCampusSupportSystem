@@ -1,0 +1,165 @@
+{
+  "info": {
+    "_postman_id": "263f0518-0b87-4a63-85a0-8420b175fa2b",
+    "name": "AcademicSupportService",
+    "description": "### Academic Support Service API Collection\n\nAPI collection for managing student academic profiles, class schedules, and academic advisor appointments.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55563479"
+  },
+  "item": [
+    {
+      "name": "View Academic Profile",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <YOUR_ACCESS_TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5002/api/v1/academic/profile",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5002",
+          "path": [
+            "api",
+            "v1",
+            "academic",
+            "profile"
+          ]
+        },
+        "description": "Retrieves the student academic profile and CGPA details based on a valid security token."
+      },
+      "response": []
+    },
+    {
+      "name": "Book Advisor Appointment",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Successful POST request\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <YOUR_ACCESS_TOKEN>",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"advisor_id\": \"LECTURER_ID_EXAMPLE\",\n  \"appointment_date\": \"2026-07-15\",\n  \"appointment_time\": \"10:00:00\",\n  \"reason\": \"Academic Project Discussion\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5002/api/v1/academic/book-advisor",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5002",
+          "path": [
+            "api",
+            "v1",
+            "academic",
+            "book-advisor"
+          ]
+        },
+        "description": "Submits a new appointment booking request with the assigned Academic Advisor."
+      },
+      "response": []
+    },
+    {
+      "name": "View Class Schedule",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <YOUR_ACCESS_TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5002/api/v1/academic/schedule",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5002",
+          "path": [
+            "api",
+            "v1",
+            "academic",
+            "schedule"
+          ]
+        },
+        "description": "Retrieves the full class timetable for the currently logged-in student."
+      },
+      "response": []
+    },
+    {
+      "name": "Cancel Advisor Appointment",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer <YOUR_ACCESS_TOKEN>",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5002/api/v1/academic/appointments/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5002",
+          "path": [
+            "api",
+            "v1",
+            "academic",
+            "appointments",
+            "1"
+          ]
+        },
+        "description": "Cancels or deletes an existing academic advisor appointment record using the specific appointment ID."
+      },
+      "response": []
+    }
+  ]
+}
