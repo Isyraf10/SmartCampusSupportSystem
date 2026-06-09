@@ -3,15 +3,11 @@ version: '3.8'
 # ─────────────────────────────────────────────────────────────────────────────
 # Smart Campus Support System — Combined docker-compose.yml
 #
-# Create the shared network once before first run:
-#   docker network create smart-campus-network
-#
 # Ports available on your machine:
-#   Central Dashboard  → http://localhost:3000
-#   Booking Frontend   → http://localhost:3001
-#   Identity Service   → http://localhost:5000
-#   Booking API        → http://localhost:5002
-#   MongoDB            → localhost:27017
+#   Frontend (UI)    → http://localhost:3000
+#   Identity Service → http://localhost:5000
+#   Booking Service  → http://localhost:5002
+#   MongoDB          → localhost:27017
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
@@ -49,7 +45,7 @@ services:
       MONGO_URI: mongodb://mongo:27017/smart-campus-identity
       JWT_SECRET: super_key_change_me_in_production_12345
       JWT_REFRESH_SECRET: super_key_refresh_change_me_in_production_67890
-      CORS_ORIGIN: "http://localhost:3000,http://localhost:3001"
+      CORS_ORIGIN: "http://localhost:3000,http://localhost:5002"
     networks:
       - smart-campus-network
     depends_on:
@@ -62,7 +58,7 @@ services:
       retries: 5
       start_period: 30s
 
-  # ── Central Dashboard (React / Vite) ─────────────────────────────────────
+  # ── Frontend (React / Vite) ──────────────────────────────────────────────
   frontend:
     build:
       context: ./RequestService(entry)/IdentityServiceUI
@@ -86,7 +82,7 @@ services:
       retries: 3
       start_period: 5s
 
-  # ── Booking Service API (Express REST) ───────────────────────────────────
+  # ── Booking Service ──────────────────────────────────────────────────────
   booking-service:
     build:
       context: ./BookingService
@@ -115,32 +111,9 @@ services:
       retries: 5
       start_period: 30s
 
-  # ── Booking Frontend (React / Vite → nginx) ──────────────────────────────
-  booking-frontend:
-    build:
-      context: ./BookingServiceUI
-      dockerfile: Dockerfile
-    container_name: booking-service-ui
-    restart: unless-stopped
-    ports:
-      - "3001:80"
-    networks:
-      - smart-campus-network
-    depends_on:
-      booking-service:
-        condition: service_healthy
-      identity-service:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 5s
-
 networks:
   smart-campus-network:
-    external: true
+    driver: bridge
 
 volumes:
   mongo_data:
