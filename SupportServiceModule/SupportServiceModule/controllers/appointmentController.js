@@ -1,6 +1,6 @@
-const academicService = require('../services/academicService');
+const academicService = require('../services/appointmentService');
 
-// 1. Book Advisor Appointment
+//1. Book Advisor Appointment
 exports.bookAdvisor = (req, res) => {
     const { advisor_name, date } = req.body;
     academicService.bookNewAppointment(req.user.id, advisor_name, date, (err, result) => {
@@ -9,7 +9,7 @@ exports.bookAdvisor = (req, res) => {
     });
 };
 
-// 2. Cancel Advisor Appointment
+//2. Cancel Advisor Appointment
 exports.cancelAppointment = (req, res) => {
     const appointmentId = req.params.id;
     academicService.removeAppointment(appointmentId, req.user.id, (err, result) => {
