@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const app = express();
 const academicRoutes = require('./routes/academicRoutes');
+const { errorHandler } = require('./utils/errorHandler');
 
 app.use(cors({
     origin: '*',
@@ -18,14 +19,17 @@ app.use((req, res, next) => {
     next();
 });
 
-//sambungkan dgn API utama
+// Routes utama
 app.use('/api/v1/academic', academicRoutes);
+
+// Pasang Global Error Handler dari folder utils
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
-    console.log('\n' + '='.repeat(55));
+    console.log('\n' + '='.repeat(60));
     console.log(`✓ Academic Support Service API running on port ${PORT}`);
-    console.log(`✓ Connected to Identity Service at http://localhost:5000`);
-    console.log('='.repeat(55) + '\n');
+    console.log(`✓ Full MVC + Architecture Pattern Aligned with BookingService`);
+    console.log('='.repeat(60) + '\n');
 });
