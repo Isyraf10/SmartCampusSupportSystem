@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/api/v1/academic', academicRoutes);
-app.use('/api/v1/appointments', appointmentRoutes); 
+app.use('/api/v1/academic', appointmentRoutes); 
 
 app.use(errorHandler);
 
