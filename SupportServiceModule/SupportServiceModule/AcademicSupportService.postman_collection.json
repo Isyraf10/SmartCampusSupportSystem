@@ -47,7 +47,7 @@
               "language": "json"
             }
           }
-        ],
+        },
         "url": {
           "raw": "http://localhost:5001/api/v1/academic/book-advisor",
           "protocol": "http",
