@@ -6,7 +6,7 @@ const notificationSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: Object.values(API_CONTRACTS.NOTIFICATION_TYPES),
+    enum: ['REMINDER', 'BOOKING_CONFIRMATION', 'EVENT_REGISTRATION', 'EVENT_CANCELLATION', 'ANNOUNCEMENT'],
   },
   message: { type: String, required: true },
   metadata: { type: Object, default: {} },
