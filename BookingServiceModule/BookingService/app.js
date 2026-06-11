@@ -3,8 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const { connectDB } = require('./config/db');
 
-const facilityRoutes = require('./facilities/facility.routes');
-const bookingRoutes = require('./bookings/booking.routes');
+const facilityRoutes = require('./routes/facility.routes');
+const bookingRoutes = require('./routes/booking.routes');
 
 const app = express();
 

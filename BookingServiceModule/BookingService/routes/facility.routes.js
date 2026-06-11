@@ -12,7 +12,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authMiddleware');
-const controller = require('./facility.controller');
+const controller = require('../controllers/facility.controller');
 
 // PUBLIC routes — NO authentication required
 router.get('/', controller.list);

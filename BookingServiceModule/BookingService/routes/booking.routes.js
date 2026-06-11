@@ -10,7 +10,7 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authMiddleware');
-const controller = require('./booking.controller');
+const controller = require('../controllers/booking.controller');
 
 // ALL booking operations require authentication
 router.use(auth);
