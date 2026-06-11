@@ -17,9 +17,9 @@ import './AuthPages.css';
 // ── Service URLs ─────────────────────────────────────────────────────────────
 // Change these to real deployed URLs when you go to production.
 const SERVICE_URLS = {
-  booking:      import.meta.env.VITE_BOOKING_URL      || 'http://localhost:3001',
-  itSupport:    import.meta.env.VITE_IT_SUPPORT_URL   || 'http://localhost:3003',
-  notification: import.meta.env.VITE_NOTIFICATION_URL || 'http://localhost:3002',
+  booking:      import.meta.env.VITE_BOOKING_URL      || 'http://localhost:3002',
+  itSupport:    import.meta.env.VITE_IT_SUPPORT_URL   || 'http://localhost:3001',
+  notification: import.meta.env.VITE_NOTIFICATION_URL || 'http://localhost:3003',
 };
 
 export default function Dashboard() {

@@ -65,7 +65,7 @@ export function useAuth() {
       if (!token) {
         console.log("Sepatutnya kena tendang (No token)");
         // 🛑 REDIRECT DITUTUP SEMENTARA
-        // window.location.href = DASHBOARD_LOGIN_URL; 
+        window.location.href = DASHBOARD_LOGIN_URL; 
         return;
       }
 
@@ -80,7 +80,7 @@ export function useAuth() {
         if (!ok) {
            console.log("Sepatutnya kena tendang (Token failed at Step 4)");
            // 🛑 REDIRECT DITUTUP SEMENTARA
-           // window.location.href = DASHBOARD_LOGIN_URL; 
+           window.location.href = DASHBOARD_LOGIN_URL; 
         }
         return;
       }
@@ -90,7 +90,7 @@ export function useAuth() {
       if (!ok) {
           console.log("Sepatutnya kena tendang (Token failed at Step 5)");
           // 🛑 REDIRECT DITUTUP SEMENTARA
-          // window.location.href = DASHBOARD_LOGIN_URL; 
+          window.location.href = DASHBOARD_LOGIN_URL; 
       }
       setLoading(false);
     };

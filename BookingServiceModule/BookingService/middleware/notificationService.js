@@ -10,24 +10,29 @@
 
 const axios = require('axios');
 
-const NOTIFICATION_URL =
-    (process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5003') +
-    '/api/v1/notifications';
-
-async function sendAlert(userId, message) {
+async function sendAlert(userId, message, token) {
+    if (!token) {
+        console.error('[Notification] No token provided, skipping alert');
+        return; 
+    }
     try {
-        await axios.post(
-            NOTIFICATION_URL,
-            { userId, message },
-            {
-                headers: { 'Content-Type': 'application/json' },
-                timeout: 3000,
-            }
-        );
-        console.log(`[Notification] Alert sent for user: ${userId}`);
-    } catch (err) {
-        // Do NOT propagate — notification failure must not break the booking
-        console.error(`[Notification] Could not reach Notification Service: ${err.message}`);
+        console.log(`[Notification] Attempting to send alert to user: ${userId}`);
+        console.log('DEBUG: Notification URL is:', process.env.NOTIFICATION_SERVICE_URL);
+        
+    await axios.post(`${process.env.NOTIFICATION_SERVICE_URL}/api/v1/notifications`, 
+        { userId, type: 'BOOKING_CONFIRMATION', message }, 
+            { 
+        headers: { 
+            'Authorization': token.startsWith('Bearer ') ? token : `Bearer ${token}`
+        } 
+    }
+);
+        
+        console.log(`[Notification] Alert sent successfully for user: ${userId}`);
+        
+    } catch (error) {
+        // Log the error, but do NOT stop the booking from finishing
+        console.error('[Notification] Could not reach Notification Service:', error.response?.data || error.message);
     }
 }
 

@@ -1,14 +1,16 @@
-const bookingService = require('./booking.service');
+const bookingService = require('../services/booking.service');
 
 async function create(req, res) {
     try {
-        const booking = await bookingService.createBooking(req.user.userId, req.body);
+        const token = req.headers.authorization; 
+        const booking = await bookingService.createBooking(req.user.userId, req.body, token);
         res.status(201).json(booking);
     } catch (err) {
         console.error('[Booking] Create error:', err.message);
         res.status(err.status || 500).json({ message: err.message || 'Failed to create booking' });
     }
 }
+
 
 async function listAll(req, res) {
     if (req.user?.userRole?.toLowerCase() !== 'admin') {
@@ -34,10 +36,12 @@ async function listMine(req, res) {
 
 async function cancel(req, res) {
     try {
+        const token = req.headers.authorization;
         const result = await bookingService.cancelBooking(
             req.params.id,
             req.user.userId,
-            req.user.userRole
+            req.user.userRole,
+            token
         );
         res.json(result);
     } catch (err) {

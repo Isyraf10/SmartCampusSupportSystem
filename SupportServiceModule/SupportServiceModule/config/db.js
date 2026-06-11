@@ -1,18 +1,17 @@
-const mysql = require('mysql2');
+const mongoose = require('mongoose');
 
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'admin', 
-    database: 'academic_support_db'
-});
-
-db.connect((err) => {
-    if (err) {
-        console.error('Failed to connect to local database:', err.message);
-    } else {
-        console.log('Successfully connected to Local MySQL Database!');
+const connectDB = async () => {
+    try {
+        // Automatically uses the Docker container name 'mongo' if set in your .env
+        const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/academic_support_db';
+        const conn = await mongoose.connect(uri);
+        console.log(`✓ Successfully connected to MongoDB at ${conn.connection.host}!`);
+    } catch (err) {
+        console.error('✗ Failed to connect to MongoDB:', err.message);
+        process.exit(1);
     }
-});
+};
 
-module.exports = db;
+connectDB();
+
+module.exports = mongoose;

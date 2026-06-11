@@ -7,7 +7,7 @@ function formatBooking(booking) {
     return { ...booking.toObject(), id: booking._id };
 }
 
-async function createBooking(userId, body) {
+async function createBooking(userId, body, token) {
     const { facilityId, date, startTime, endTime } = body;
 
     if (!facilityId) {
@@ -79,9 +79,8 @@ async function createBooking(userId, body) {
         endTime,
         status: 'CONFIRMED',
     });
-
     sendAlert(userId,
-        `Success! You have booked facility ${facilityId} on ${date} at ${startTime}`
+        `Success! You have booked facility ${facilityId} on ${date} at ${startTime}`, token
     );
 
     return formatBooking(booking);
@@ -97,7 +96,7 @@ async function listUserBookings(userId) {
     return bookings.map(formatBooking);
 }
 
-async function cancelBooking(id, userId, userRole) {
+async function cancelBooking(id, userId, userRole, token) {
     const booking = await Booking.findById(id);
     if (!booking) {
         const err = new Error('Booking not found');
@@ -114,9 +113,7 @@ async function cancelBooking(id, userId, userRole) {
     booking.status = 'CANCELLED';
     await booking.save();
 
-    sendAlert(userId,
-        `Your booking for facility ${booking.facilityId} has been successfully cancelled.`
-    );
+    sendAlert(userId, 'The booking successfully cancelled', token); 
 
     return { message: 'Booking cancelled successfully' };
 }
