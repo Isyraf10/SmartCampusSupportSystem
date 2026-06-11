@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+require('./config/db'); // Connect to MongoDB
 
 const app = express();
 const { errorHandler } = require('./utils/time');
@@ -18,6 +19,15 @@ app.use(express.json());
 app.use((req, res, next) => {
     console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
     next();
+});
+
+app.get('/api/v1/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        service: 'Academic Support Service',
+        port: process.env.PORT || 5001,
+        timestamp: new Date().toISOString(),
+    });
 });
 
 app.use('/api/v1/academic', academicRoutes);

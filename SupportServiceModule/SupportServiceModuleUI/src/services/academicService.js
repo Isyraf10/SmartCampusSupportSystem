@@ -1,4 +1,4 @@
-import api from '../api/axiosClient';
+import api from '../API/axiosClient';
 
 export const academicApi = {
   getProfile: () => api.get('/academic/profile').then((r) => r.data),

@@ -20,6 +20,6 @@ router.delete('/:id', verifyToken, deleteNotification);
 
 // Admin only routes
 router.get('/', verifyToken, isAdmin, getAllNotifications);
-router.post('/send', verifyToken, isAdmin, sendNotification);
+router.post('/', verifyToken, sendNotification);
 
 module.exports = router;

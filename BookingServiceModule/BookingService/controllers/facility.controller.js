@@ -1,4 +1,4 @@
-const facilityService = require('./facility.service');
+const facilityService = require('../services/facility.service');
 
 function requireAdmin(req, res) {
     if (req.user?.userRole?.toLowerCase() !== 'admin') {

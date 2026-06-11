@@ -180,9 +180,9 @@ export default function Home() {
             className="card booking-card"
             style={{ borderLeftColor: b.status === 'CONFIRMED' ? '#27ae60' : '#e74c3c' }}
           >
-            <p><strong>Booking ID:</strong> {b.id}</p>
-            <p><strong>Facility:</strong> {b.facilityId}</p>
-            {isAdmin && <p><strong>Booked By:</strong> {b.userId}</p>}
+            <p><strong>Booking Ref:</strong> <span title={b.id}>#{b.id.slice(-5).toUpperCase()}</span></p> {/* easily identified bookingid */}
+            <p><strong>Facility:</strong> {facilities.find(f => f.id === b.facilityId)?.name || 'Unknown Facility'}</p>
+            {isAdmin && <p><strong>Booked By:</strong> <span title={b.userId}>User-{b.userId.slice(-5).toUpperCase()}</span></p>}{/* easily identified userid */}
             <p><strong>Date:</strong> {b.date} | <strong>Time:</strong> {b.startTime} – {b.endTime}</p>
             <p><strong>Status:</strong> {b.status}</p>
             {b.status !== 'CANCELLED' && (
