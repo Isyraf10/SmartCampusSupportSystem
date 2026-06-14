@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-require('./config/db'); // Connect to MongoDB
+
+// KITA KASI PALANG KUNCI MATI SAMBUNGAN MONGODB YANG BIKIN MEMORY FULL TU CHOKK! 🌸🔥
+// require('./config/db'); 
 
 const app = express();
 const { errorHandler } = require('./utils/time');

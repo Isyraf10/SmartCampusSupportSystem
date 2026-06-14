@@ -1,18 +1,16 @@
-const academicService = require('../services/appointmentService');
+// Kita panggil academicService sbb kod appointment awak sudah dipindahkan ke sini oleh dorang chokk!
+const academicService = require('../services/academicService'); 
 
 //1. Book Advisor Appointment
 exports.bookAdvisor = (req, res) => {
     const { advisor_name, date } = req.body;
-    const token = req.headers['authorization']; // <-- Grab the token from Postman
+    const token = req.headers['authorization']; 
     
-    // Pass the token as the 4th argument
     academicService.bookNewAppointment(req.user.id, advisor_name, date, token, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ message: "Advisor appointment booking submitted successfully!", appointmentId: result.insertId });
     });
 };
-
-
 
 //2. Cancel Advisor Appointment
 exports.cancelAppointment = (req, res) => {

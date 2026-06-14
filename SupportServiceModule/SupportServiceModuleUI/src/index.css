@@ -16,7 +16,7 @@
 
   font: 18px/145% var(--sans);
   letter-spacing: 0.18px;
-  color-scheme: light dark;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   font-synthesis: none;
@@ -31,16 +31,11 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #e1cbd4;
-    --text-h: #fdf6f8;
+    --text: #f7dce4;
+    --text-h: #ffffff;
     --bg: #1a1215;
-    --border: #3a2a30;
-    --code-bg: #281c20;
-    --accent: #fda4af;
-    --accent-bg: rgba(253, 164, 175, 0.15);
-    --accent-border: rgba(253, 164, 175, 0.5);
-    --social-bg: rgba(43, 30, 35, 0.5);
-    --shadow: rgba(0, 0, 0, 0.5) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+    --border: #5b4049;
+    --social-bg: rgba(255, 240, 245, 0.08);
   }
 }
 
@@ -68,7 +63,16 @@ body {
 h1, h2 {
   font-family: var(--heading);
   font-weight: 500;
-  color: var(--text-h);
+}
+
+h1 {
+  color: #ff6f91;
+  font-weight: 700;
+}
+
+h2 {
+  color: #ff8da1;
+  font-weight: 600;
 }
 
 h1 {
@@ -96,7 +100,7 @@ p { margin: 0; }
   padding: 20px;
   margin-bottom: 16px;
   border-radius: 8px;
-  background: var(--social-bg);
+  background: #fff5f8;
   box-shadow: var(--shadow);
   transition: transform 0.2s;
 }
@@ -130,8 +134,8 @@ button {
 button:hover { opacity: 0.85; }
 
 .btn-logout {
-  background-color: #e74c3c;
-  border-color: #e74c3c;
+  background-color: #ff8da1;
+  border-color: #ff8da1;
   color: white;
 }
 .btn-delete {
