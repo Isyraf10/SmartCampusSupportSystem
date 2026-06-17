@@ -1,16 +1,8 @@
-/**DONE
- * authMiddleware.js — SOA Token Verification (Option A: Remote)
+/**
+ * authMiddleware.js — SOA Token Verification (Remote)
  *
- * Calls the Identity Service POST /api/v1/auth/verify-token
- * to verify every incoming Bearer token before the request
- * reaches any route handler.
- *
- * On success  → attaches userId, userRole, userEmail to req
- * On failure  → returns 401 Unauthorized immediately
- * If Identity Service is offline → returns 503 Service Unavailable
- *
- * Public routes (health, GET facilities, static files) are whitelisted
- * and skip this middleware entirely.
+ * Calls the Identity Service to verify every incoming Bearer token 
+ * before the request reaches any route handler.
  */
 
 const axios = require('axios');
@@ -70,7 +62,6 @@ async function authMiddleware(req, res, next) {
         }
 
         // Attach verified user info to the request object
-        // Route handlers read from req.user — never from raw headers
         req.user = {
             userId:    id,
             userRole:  role  || 'student',
@@ -78,7 +69,7 @@ async function authMiddleware(req, res, next) {
             userName:  name  || '',
         };
 
-        console.log(`[Auth] Verified: userId=${id} role=${role}`);
+        console.log(`[Auth] Verified via Identity Service: userId=${id} role=${role}`);
         return next();
 
     } catch (err) {

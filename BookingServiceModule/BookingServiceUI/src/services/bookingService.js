@@ -32,4 +32,8 @@ export const bookingApi = {
 
   cancelBooking: (id) =>
     api.put(`/bookings/${id}/cancel`).then((r) => r.data),
+
+  // ADDED: Permanently delete a booking (Admin feature)
+  deleteBooking: (id) =>
+    api.delete(`/bookings/${id}`).then((r) => r.data),
 };

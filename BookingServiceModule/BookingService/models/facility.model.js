@@ -8,4 +8,12 @@ const facilitySchema = new mongoose.Schema({
     active:   { type: Boolean, default: true },
 });
 
+facilitySchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        delete ret._id;
+    }
+});
+
 module.exports = mongoose.model('Facility', facilitySchema);

@@ -2,13 +2,8 @@ const Facility = require('../models/facility.model');
 const Booking = require('../models/booking.model');
 const { toMinutes, timesOverlap } = require('../utils/time');
 
-function formatFacility(facility) {
-    return { ...facility.toObject(), id: facility._id };
-}
-
 async function listFacilities() {
-    const facilities = await Facility.find();
-    return facilities.map(formatFacility);
+    return Facility.find();
 }
 
 async function getFacilityById(id) {
@@ -17,30 +12,20 @@ async function getFacilityById(id) {
 
 async function checkAvailability(id, { date, startTime, endTime }) {
     if (!date || !startTime || !endTime) {
-        const err = new Error('date, startTime and endTime are required');
-        err.status = 400;
-        throw err;
+        throw Object.assign(new Error('date, startTime and endTime are required'), { status: 400 });
     }
 
     const timeRegex = /^\d{2}:\d{2}$/;
     if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
-        const err = new Error('Invalid time format. Use HH:mm');
-        err.status = 400;
-        throw err;
+        throw Object.assign(new Error('Invalid time format. Use HH:mm'), { status: 400 });
     }
 
     if (toMinutes(startTime) >= toMinutes(endTime)) {
-        const err = new Error('startTime must be before endTime');
-        err.status = 400;
-        throw err;
+        throw Object.assign(new Error('startTime must be before endTime'), { status: 400 });
     }
 
     const exists = await Facility.findById(id);
-    if (!exists) {
-        const err = new Error('Facility not found');
-        err.status = 404;
-        throw err;
-    }
+    if (!exists) throw Object.assign(new Error('Facility not found'), { status: 404 });
 
     const bookings = await Booking.find({
         facilityId: id,
@@ -58,29 +43,21 @@ async function checkAvailability(id, { date, startTime, endTime }) {
 async function createFacility(data) {
     const { name, type, location, capacity, active } = data;
     if (!name || !type || !location || !capacity) {
-        const err = new Error('name, type, location and capacity are required');
-        err.status = 400;
-        throw err;
+        throw Object.assign(new Error('name, type, location and capacity are required'), { status: 400 });
     }
 
-    const facility = await Facility.create({
+    return Facility.create({
         name,
         type,
         location,
         capacity: Number(capacity),
         active: active !== undefined ? active : true,
     });
-
-    return formatFacility(facility);
 }
 
 async function updateFacility(id, data) {
     const facility = await Facility.findById(id);
-    if (!facility) {
-        const err = new Error('Facility not found');
-        err.status = 404;
-        throw err;
-    }
+    if (!facility) throw Object.assign(new Error('Facility not found'), { status: 404 });
 
     const { name, type, location, capacity, active } = data;
     if (name     !== undefined) facility.name     = name;
@@ -90,16 +67,13 @@ async function updateFacility(id, data) {
     if (active   !== undefined) facility.active   = active;
 
     await facility.save();
-    return formatFacility(facility);
+    return facility;
 }
 
 async function deleteFacility(id) {
     const deleted = await Facility.findByIdAndDelete(id);
-    if (!deleted) {
-        const err = new Error('Facility not found');
-        err.status = 404;
-        throw err;
-    }
+    if (!deleted) throw Object.assign(new Error('Facility not found'), { status: 404 });
+    
     return { message: 'Facility deleted successfully' };
 }
 
@@ -109,6 +83,5 @@ module.exports = {
     checkAvailability,
     createFacility,
     updateFacility,
-    deleteFacility,
-    formatFacility,
+    deleteFacility
 };

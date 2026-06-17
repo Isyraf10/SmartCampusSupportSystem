@@ -1,16 +1,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { bookingApi } from '../services/bookingService';
+import BookingModal from '../components/BookingModal';
+import FacilityModal from '../components/FacilityModal';
 
 export default function Home() {
   const { user, loading, logout, isAdmin } = useAuth();
   const [facilities, setFacilities] = useState([]);
   const [bookings, setBookings]     = useState([]);
   const [error, setError]           = useState('');
-
-  const [bookingModal,  setBookingModal]  = useState(null);
-  const [facilityModal, setFacilityModal] = useState(null);
-  const [editModal,     setEditModal]     = useState(null);
+  
+  // Clean Modal States
+  const [bookingModalFac, setBookingModalFac] = useState(null);
+  const [showCreateFac, setShowCreateFac]     = useState(false);
+  const [editFacData, setEditFacData]         = useState(null);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -19,7 +22,7 @@ export default function Home() {
         bookingApi.getFacilities(),
         bookingApi.getBookings(isAdmin),
       ]);
-      setFacilities(Array.isArray(facData)  ? facData  : []);
+      setFacilities(Array.isArray(facData) ? facData : []);
       setBookings(Array.isArray(bookData) ? bookData : []);
       setError('');
     } catch (err) {
@@ -31,238 +34,161 @@ export default function Home() {
     if (user) loadData();
   }, [user, loadData]);
 
+  // Temporary error display helper (better UX than window.alert)
+  const showError = (msg) => {
+    setError(msg);
+    setTimeout(() => setError(''), 5000); // clear after 5 seconds
+  };
+
   if (loading) {
-    return <div className="container"><p>Loading...</p></div>;
+    return <div className="app-container"><p className="loading-text">Loading Dashboard...</p></div>;
   }
 
-  // ── Booking handlers ───────────────────────────────────────────────────────
-
-  const handleCreateBooking = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const data = {
-      facilityId: bookingModal.id,
-      date:       form.date.value,
-      startTime:  form.startTime.value,
-      endTime:    form.endTime.value,
-    };
-
-    if (data.startTime >= data.endTime) {
-      alert('Start time must be before end time.');
-      return;
-    }
-
+  /* ─── Handlers ────────────────────────────────────────── */
+  const handleBookingSubmit = async (data) => {
     try {
       await bookingApi.createBooking(data);
-      setBookingModal(null);
+      setBookingModalFac(null);
       loadData();
     } catch (err) {
-      alert(err.response?.data?.message || 'Booking failed');
+      showError(err.response?.data?.message || 'Booking failed');
     }
   };
 
-  const handleCancelBooking = async (id) => {
-    if (!confirm('Are you sure you want to cancel this booking?')) return;
+  const handleFacilitySubmit = async (data) => {
     try {
-      await bookingApi.cancelBooking(id);
+      if (editFacData) {
+        await bookingApi.updateFacility(editFacData.id, data);
+      } else {
+        await bookingApi.createFacility(data);
+      }
+      setShowCreateFac(false);
+      setEditFacData(null);
       loadData();
     } catch (err) {
-      alert(err.response?.data?.message || 'Cancel failed');
+      showError(err.response?.data?.message || 'Facility save failed');
     }
   };
 
-  // ── Facility handlers (admin only) ─────────────────────────────────────────
-
-  const handleCreateFacility = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    try {
-      await bookingApi.createFacility({
-        name:     form.name.value.trim(),
-        type:     form.type.value.trim(),
-        location: form.location.value.trim(),
-        capacity: parseInt(form.capacity.value, 10),
-        active:   true,
-      });
-      setFacilityModal(false);
-      loadData();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Failed to create facility');
+  const handleAction = async (actionFn, confirmMsg) => {
+    if (window.confirm(confirmMsg)) {
+      try {
+        await actionFn();
+        loadData();
+      } catch (err) {
+        showError(err.response?.data?.message || 'Action failed');
+      }
     }
   };
 
-  const handleEditFacility = async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    try {
-      await bookingApi.updateFacility(editModal.id, {
-        name:     form.name.value.trim(),
-        type:     form.type.value.trim(),
-        location: form.location.value.trim(),
-        capacity: parseInt(form.capacity.value, 10),
-        active:   form.active.checked,
-      });
-      setEditModal(null);
-      loadData();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Update failed');
-    }
-  };
-
-  const handleDeleteFacility = async (id) => {
-    if (!confirm('Are you sure you want to delete this facility?')) return;
-    try {
-      await bookingApi.deleteFacility(id);
-      loadData();
-    } catch (err) {
-      alert(err.response?.data?.message || 'Delete failed');
-    }
-  };
-
-  // ── Render ─────────────────────────────────────────────────────────────────
-
+  /* ─── Render ─────────────────────────────────────────── */
   return (
-    <div className="container">
-      <h1>Smart Campus Facility Booking</h1>
+    <div className="app-container">
+      <header className="dashboard-header">
+        <div className="title-highlight-wrapper">
+          <h1 className="page-title">Smart Campus Facility Booking</h1>
+          <p className="title-subtitle">Make booking easy and efficient</p>
+        </div>
+        
+        <div className="user-profile-widget">
+          <div className="greeting-wrapper">
+            <span className="hi-text">Hi, {user?.name || user?.id?.split('@')[0]}</span>
+            <span className="role-badge">{user?.role || 'student'}</span>
+          </div>
+          <div className="header-actions">
+            <button className="btn-home" onClick={() => window.location.href = 'http://localhost:3000/dashboard'}>
+              Dashboard
+            </button>
+            <button className="btn-logout" onClick={logout}>Logout</button>
+          </div>
+        </div>
+      </header>
 
-      <div className="topbar">
-        <p className="user-info">
-          Logged in as: <strong>{user?.name || user?.id} ({user?.role})</strong>
-        </p>
-        <button className="btn-logout" onClick={logout}>Logout</button>
-      </div>
-
-      {error && <p className="error-msg">{error}</p>}
+      {error && <div className="error-msg" style={{padding: '1rem', background: '#ffebee', color: '#c62828', textAlign: 'center', marginBottom: '1rem', borderRadius: '8px'}}>{error}</div>}
 
       {isAdmin && (
         <div className="admin-bar">
-          <span>Admin Mode — You can manage facilities below</span>
-          <button className="btn-create" onClick={() => setFacilityModal(true)}>
-            + Create New Facility
-          </button>
+          <span> Admin Mode — Facility Management</span>
+          <button className="btn-create" onClick={() => setShowCreateFac(true)}>+ Create New Facility</button>
         </div>
       )}
 
-      {/* ── Facilities list ── */}
-      <h2>Available Facilities</h2>
-      {facilities.length === 0 ? (
-        <p>No facilities available.</p>
-      ) : (
-        facilities.map((fac) => (
-          <div key={fac.id} className="card">
-            <h3>{fac.name} ({fac.type})</h3>
-            <p>Location: {fac.location} | Capacity: {fac.capacity}</p>
-            <p>Status: <strong>{fac.active ? 'Active' : 'Inactive'}</strong></p>
-            {isAdmin ? (
-              <>
-                <button className="btn-edit"   onClick={() => setEditModal(fac)}>Edit</button>
-                <button className="btn-delete" onClick={() => handleDeleteFacility(fac.id)}>Delete</button>
-              </>
-            ) : fac.active ? (
-              <button onClick={() => setBookingModal({ id: fac.id, name: fac.name })}>
-                Book This Room
-              </button>
-            ) : (
-              <button disabled className="btn-disabled">Not Available</button>
+      <main className="dashboard-grid">
+        {/* Left Column: Facilities */}
+        <section className="dashboard-column facilities-column">
+          <h2 className="section-title">Available Facilities</h2>
+          <div className="scroll-area">
+            {facilities.length === 0 ? <p className="empty-state">No facilities available.</p> : (
+              facilities.map((fac) => (
+                <div key={fac.id} className="card facility-card">
+                  <div className="card-header">
+                    <h3>{fac.name}</h3>
+                    <span className={`status-badge ${fac.active ? 'active' : 'inactive'}`}>
+                      {fac.active ? 'Available' : 'Maintenance'}
+                    </span>
+                  </div>
+                  <p className="card-detail"><strong>Type:</strong> {fac.type}</p>
+                  <p className="card-detail"><strong>Location:</strong> {fac.location}</p>
+                  <p className="card-detail"><strong>Capacity:</strong> {fac.capacity} pax</p>
+                  
+                  <div className="card-actions">
+                    {isAdmin ? (
+                      <>
+                        <button className="btn-edit" onClick={() => setEditFacData(fac)}>Edit</button>
+                        <button className="btn-delete" onClick={() => handleAction(() => bookingApi.deleteFacility(fac.id), 'Delete this facility?')}>Delete</button>
+                      </>
+                    ) : fac.active ? (
+                      <button className="btn-book" onClick={() => setBookingModalFac(fac)}>Book This Room</button>
+                    ) : (
+                      <button disabled className="btn-disabled">Unavailable</button>
+                    )}
+                  </div>
+                </div>
+              ))
             )}
           </div>
-        ))
-      )}
+        </section>
 
-      {/* ── Bookings list ── */}
-      <h2>{isAdmin ? 'All System Bookings (Admin View)' : 'My Bookings'}</h2>
-      {bookings.length === 0 ? (
-        <p>No bookings found.</p>
-      ) : (
-        bookings.map((b) => (
-          <div
-            key={b.id}
-            className="card booking-card"
-            style={{ borderLeftColor: b.status === 'CONFIRMED' ? '#27ae60' : '#e74c3c' }}
-          >
-            <p><strong>Booking Ref:</strong> <span title={b.id}>#{b.id.slice(-5).toUpperCase()}</span></p> {/* easily identified bookingid */}
-            <p><strong>Facility:</strong> {facilities.find(f => f.id === b.facilityId)?.name || 'Unknown Facility'}</p>
-            {isAdmin && <p><strong>Booked By:</strong> <span title={b.userId}>User-{b.userId.slice(-5).toUpperCase()}</span></p>}{/* easily identified userid */}
-            <p><strong>Date:</strong> {b.date} | <strong>Time:</strong> {b.startTime} – {b.endTime}</p>
-            <p><strong>Status:</strong> {b.status}</p>
-            {b.status !== 'CANCELLED' && (
-              <button className="btn-delete" onClick={() => handleCancelBooking(b.id)}>
-                Cancel Booking
-              </button>
+        {/* Right Column: Bookings */}
+        <section className="dashboard-column bookings-column">
+          <h2 className="section-title">{isAdmin ? 'All System Bookings' : 'My Bookings'}</h2>
+          <div className="scroll-area">
+            {bookings.length === 0 ? <p className="empty-state">No bookings found.</p> : (
+              bookings.map((b) => (
+                <div key={b.id} className={`card booking-card ${b.status === 'CONFIRMED' ? 'confirmed' : 'cancelled'}`}>
+                  <div className="booking-header">
+                    <span className="booking-ref">#{b.id.slice(-5).toUpperCase()}</span>
+                    <span className={`status-text ${b.status.toLowerCase()}`}>{b.status}</span>
+                  </div>
+                  <h4 className="booking-facility">
+                    {facilities.find(f => f.id === b.facilityId)?.name || 'Unknown Facility'}
+                  </h4>
+                  {isAdmin && <p className="card-detail"><strong>Booked By:</strong> User-{b.userId.slice(-5).toUpperCase()}</p>}
+                  <div className="booking-datetime">
+                    <span className="date-box">📅 {b.date}</span>
+                    <span className="time-box">⏳ {b.startTime} – {b.endTime}</span>
+                  </div>
+
+                  {(b.status !== 'CANCELLED' || isAdmin) && (
+                    <div className="card-actions end">
+                      {b.status !== 'CANCELLED' && (
+                        <button className="btn-cancel" onClick={() => handleAction(() => bookingApi.cancelBooking(b.id), 'Cancel this booking?')}>Cancel</button>
+                      )}
+                      {isAdmin && (
+                        <button className="btn-delete" onClick={() => handleAction(() => bookingApi.deleteBooking(b.id), 'Permanently delete record?')}>Delete</button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))
             )}
           </div>
-        ))
-      )}
+        </section>
+      </main>
 
-      {/* ── Book room modal ── */}
-      {bookingModal && (
-        <div className="modal-overlay" onClick={() => setBookingModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Book: {bookingModal.name}</h3>
-            <form onSubmit={handleCreateBooking}>
-              <label>Date</label>
-              <input type="date" name="date" required min={new Date().toISOString().split('T')[0]} />
-              <label>Start Time</label>
-              <input type="time" name="startTime" required />
-              <label>End Time</label>
-              <input type="time" name="endTime" required />
-              <div className="modal-actions">
-                <button type="submit" className="btn-create">Confirm Booking</button>
-                <button type="button" className="btn-delete" onClick={() => setBookingModal(null)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ── Create facility modal (admin) ── */}
-      {facilityModal && (
-        <div className="modal-overlay" onClick={() => setFacilityModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Create New Facility</h3>
-            <form onSubmit={handleCreateFacility}>
-              <label>Name</label>
-              <input type="text" name="name" required placeholder="e.g. Dewan Al-Falah" />
-              <label>Type</label>
-              <input type="text" name="type" required placeholder="e.g. Hall, Lab, Room" />
-              <label>Location</label>
-              <input type="text" name="location" required placeholder="e.g. Block A, Level 2" />
-              <label>Capacity</label>
-              <input type="number" name="capacity" required min="1" placeholder="e.g. 100" />
-              <div className="modal-actions">
-                <button type="submit">Create</button>
-                <button type="button" className="btn-delete" onClick={() => setFacilityModal(false)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ── Edit facility modal (admin) ── */}
-      {editModal && (
-        <div className="modal-overlay" onClick={() => setEditModal(null)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Edit Facility</h3>
-            <form onSubmit={handleEditFacility}>
-              <label>Name</label>
-              <input type="text" name="name" defaultValue={editModal.name} required />
-              <label>Type</label>
-              <input type="text" name="type" defaultValue={editModal.type} required />
-              <label>Location</label>
-              <input type="text" name="location" defaultValue={editModal.location} required />
-              <label>Capacity</label>
-              <input type="number" name="capacity" defaultValue={editModal.capacity} required min="1" />
-              <label className="checkbox-label">
-                <input type="checkbox" name="active" defaultChecked={editModal.active} /> Active
-              </label>
-              <div className="modal-actions">
-                <button type="submit" className="btn-edit">Save Changes</button>
-                <button type="button" onClick={() => setEditModal(null)}>Cancel</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Render Modals dynamically */}
+      {bookingModalFac && <BookingModal facility={bookingModalFac} onClose={() => setBookingModalFac(null)} onSubmit={handleBookingSubmit} />}
+      {(showCreateFac || editFacData) && <FacilityModal editData={editFacData} onClose={() => { setShowCreateFac(false); setEditFacData(null); }} onSubmit={handleFacilitySubmit} />}
     </div>
   );
 }
