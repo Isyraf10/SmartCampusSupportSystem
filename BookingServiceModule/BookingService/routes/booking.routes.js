@@ -1,10 +1,11 @@
 /**
  * booking.routes.js
  *
- * POST /api/v1/bookings              — create booking (any logged-in user)
- * GET  /api/v1/bookings              — list ALL bookings (admin only)
- * GET  /api/v1/bookings/me           — list MY bookings (any logged-in user)
- * PUT  /api/v1/bookings/:id/cancel   — cancel a booking (owner or admin)
+ * POST   /api/v1/bookings              — create booking (any logged-in user)
+ * GET    /api/v1/bookings              — list ALL bookings (admin only)
+ * GET    /api/v1/bookings/me           — list MY bookings (any logged-in user)
+ * PUT    /api/v1/bookings/:id/cancel   — cancel a booking (owner or admin)
+ * DELETE /api/v1/bookings/:id          — permanently delete a booking (admin only)
  */
 
 const express = require('express');
@@ -19,5 +20,8 @@ router.post('/', controller.create);
 router.get('/me', controller.listMine);
 router.get('/', controller.listAll);
 router.put('/:id/cancel', controller.cancel);
+
+// NEW: Route to handle permanent deletion from the database
+router.delete('/:id', controller.remove);
 
 module.exports = router;

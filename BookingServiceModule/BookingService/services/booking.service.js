@@ -1,59 +1,27 @@
 const Booking = require('../models/booking.model');
 const Facility = require('../models/facility.model');
-const { sendAlert } = require('../middleware/notificationService');
+const { sendAlert } = require('./notificationService'); // Assuming you moved this to /services
 const { toMinutes, timesOverlap, isValidTime } = require('../utils/time');
-
-function formatBooking(booking) {
-    return { ...booking.toObject(), id: booking._id };
-}
 
 async function createBooking(userId, body, token) {
     const { facilityId, date, startTime, endTime } = body;
 
-    if (!facilityId) {
-        const err = new Error('facilityId is required');
-        err.status = 400;
-        throw err;
-    }
-    if (!date) {
-        const err = new Error('date is required');
-        err.status = 400;
-        throw err;
-    }
-    if (!startTime) {
-        const err = new Error('startTime is required');
-        err.status = 400;
-        throw err;
-    }
-    if (!endTime) {
-        const err = new Error('endTime is required');
-        err.status = 400;
-        throw err;
-    }
+    if (!facilityId) throw Object.assign(new Error('facilityId is required'), { status: 400 });
+    if (!date) throw Object.assign(new Error('date is required'), { status: 400 });
+    if (!startTime) throw Object.assign(new Error('startTime is required'), { status: 400 });
+    if (!endTime) throw Object.assign(new Error('endTime is required'), { status: 400 });
 
     if (!isValidTime(startTime) || !isValidTime(endTime)) {
-        const err = new Error('Invalid time format. Use HH:mm (e.g., 09:00)');
-        err.status = 400;
-        throw err;
+        throw Object.assign(new Error('Invalid time format. Use HH:mm (e.g., 09:00)'), { status: 400 });
     }
 
     if (toMinutes(startTime) >= toMinutes(endTime)) {
-        const err = new Error('startTime must be before endTime');
-        err.status = 400;
-        throw err;
+        throw Object.assign(new Error('startTime must be before endTime'), { status: 400 });
     }
 
     const facility = await Facility.findById(facilityId);
-    if (!facility) {
-        const err = new Error('Facility not found');
-        err.status = 404;
-        throw err;
-    }
-    if (!facility.active) {
-        const err = new Error('Facility is inactive');
-        err.status = 400;
-        throw err;
-    }
+    if (!facility) throw Object.assign(new Error('Facility not found'), { status: 404 });
+    if (!facility.active) throw Object.assign(new Error('Facility is inactive'), { status: 400 });
 
     const existing = await Booking.find({
         facilityId,
@@ -66,9 +34,7 @@ async function createBooking(userId, body, token) {
     );
 
     if (conflict) {
-        const err = new Error(`Time slot ${startTime}-${endTime} is already booked.`);
-        err.status = 409;
-        throw err;
+        throw Object.assign(new Error(`Time slot ${startTime}-${endTime} is already booked.`), { status: 409 });
     }
 
     const booking = await Booking.create({
@@ -79,43 +45,41 @@ async function createBooking(userId, body, token) {
         endTime,
         status: 'CONFIRMED',
     });
-    sendAlert(userId,
-        `Success! You have booked facility ${facilityId} on ${date} at ${startTime}`, token
-    );
 
-    return formatBooking(booking);
+    sendAlert(userId, `Success! You have booked facility ${facilityId} on ${date} at ${startTime}`, token);
+
+    return booking;
 }
 
 async function listAllBookings() {
-    const bookings = await Booking.find().sort({ createdAt: -1 });
-    return bookings.map(formatBooking);
+    return Booking.find().sort({ createdAt: -1 });
 }
 
 async function listUserBookings(userId) {
-    const bookings = await Booking.find({ userId }).sort({ createdAt: -1 });
-    return bookings.map(formatBooking);
+    return Booking.find({ userId }).sort({ createdAt: -1 });
 }
 
 async function cancelBooking(id, userId, userRole, token) {
     const booking = await Booking.findById(id);
-    if (!booking) {
-        const err = new Error('Booking not found');
-        err.status = 404;
-        throw err;
-    }
+    if (!booking) throw Object.assign(new Error('Booking not found'), { status: 404 });
 
     if (booking.userId !== userId && userRole?.toLowerCase() !== 'admin') {
-        const err = new Error('Not allowed to cancel this booking');
-        err.status = 403;
-        throw err;
+        throw Object.assign(new Error('Not allowed to cancel this booking'), { status: 403 });
     }
 
     booking.status = 'CANCELLED';
     await booking.save();
 
-    sendAlert(userId, 'The booking successfully cancelled', token); 
+    sendAlert(userId, 'The booking successfully cancelled', token);
 
     return { message: 'Booking cancelled successfully' };
+}
+
+async function deleteBooking(id) {
+    const booking = await Booking.findByIdAndDelete(id);
+    if (!booking) throw Object.assign(new Error('Booking not found'), { status: 404 });
+
+    return { message: 'Booking permanently deleted' };
 }
 
 module.exports = {
@@ -123,4 +87,5 @@ module.exports = {
     listAllBookings,
     listUserBookings,
     cancelBooking,
+    deleteBooking 
 };

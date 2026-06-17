@@ -10,4 +10,12 @@ const bookingSchema = new mongoose.Schema({
     createdAt:  { type: Date,   default: Date.now },
 });
 
+bookingSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false,
+    transform: function (doc, ret) {
+        delete ret._id;
+    }
+});
+
 module.exports = mongoose.model('Booking', bookingSchema);
