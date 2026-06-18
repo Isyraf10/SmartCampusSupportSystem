@@ -29,8 +29,20 @@ export default function Dashboard() {
     const [sending, setSending] = useState(false);
     const [activeTab, setActiveTab] = useState('my');
     const [serviceOnline, setServiceOnline] = useState(true);
+    const [users, setUsers] = useState([]);
 
     const token = getToken();
+
+    useEffect(() => {
+        if (user?.role === 'admin' && token) {
+            fetch('http://localhost:5000/api/v1/users', {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            .then(r => r.json())
+            .then(data => setUsers(data?.data?.users || data?.data || []))
+            .catch(() => {});
+        }
+    }, [token, user]);
 
     const loadNotifications = useCallback(async () => {
         if (!token) return;
@@ -41,7 +53,7 @@ export default function Dashboard() {
                 ? notificationService.getAllNotifications
                 : notificationService.getMyNotifications;
             const res = await endpoint(token);
-            setNotifications(res.data?.data || []);
+            setNotifications(res?.data || []);
         } catch (err) {
             const msg = err.response?.data?.message || err.message || 'Failed to load notifications';
             setError(msg);
@@ -85,16 +97,18 @@ export default function Dashboard() {
 
     const handleSend = async () => {
         if (!sendForm.userId || !sendForm.message) {
-            setError('User ID and message are required.');
+            setError('User and message are required.');
             return;
         }
         setSending(true);
         setError('');
         try {
-            await notificationService.sendNotification(sendForm, token);
+            await notificationService.sendNotification(sendForm);
             setSendForm({ userId: '', type: 'REMINDER', message: '' });
             setSuccess('Notification sent successfully!');
             setTimeout(() => setSuccess(''), 3000);
+            setActiveTab('my');
+            loadNotifications();
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to send notification');
         } finally {
@@ -267,13 +281,27 @@ export default function Dashboard() {
                             <div className="form-card">
                                 <h3>📤 New Notification</h3>
                                 <div className="form-group">
-                                    <label>Recipient User ID *</label>
-                                    <input
-                                        type="text"
-                                        value={sendForm.userId}
-                                        onChange={(e) => setSendForm({ ...sendForm, userId: e.target.value })}
-                                        placeholder="e.g. 6a289ec232083687a1058172"
-                                    />
+                                    <label>Recipient User *</label>
+                                    {users.length > 0 ? (
+                                        <select
+                                            value={sendForm.userId}
+                                            onChange={(e) => setSendForm({ ...sendForm, userId: e.target.value })}
+                                        >
+                                            <option value="">-- Select a user --</option>
+                                            {users.map(u => (
+                                                <option key={u._id} value={u._id}>
+                                                    {u.name} ({u.matricNumber}) — {u.role}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            value={sendForm.userId}
+                                            onChange={(e) => setSendForm({ ...sendForm, userId: e.target.value })}
+                                            placeholder="e.g. 6a289ec232083687a1058172"
+                                        />
+                                    )}
                                 </div>
                                 <div className="form-group">
                                     <label>Notification Type *</label>

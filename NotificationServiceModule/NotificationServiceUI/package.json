@@ -1,22 +1,21 @@
 {
-  "name": "notification-service-ui",
+  "name": "notification-service-module",
   "version": "1.0.0",
-  "description": "Notification Service Frontend - Smart Campus Support System",
-  "type": "module",
+  "description": "Notification Service Module - Smart Campus Support System (SOA)",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview",
-    "start": "npm run dev"
+    "start:backend": "cd NotificationService && npm start",
+    "start:frontend": "cd NotificationServiceUI && npm run dev",
+    "install:all": "cd NotificationService && npm install && cd ../NotificationServiceUI && npm install"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.11.0",
-    "axios": "^1.4.0"
+    "axios": "^1.18.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "react-router-dom": "^7.18.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.0",
-    "vite": "^4.3.4"
+    "@vitejs/plugin-react": "^6.0.2",
+    "vite": "^8.0.16"
   }
 }

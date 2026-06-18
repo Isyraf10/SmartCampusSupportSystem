@@ -1,47 +1,82 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+// AuthContext.jsx
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import axios from 'axios'
+import { IDENTITY_VERIFY_URL } from '../config'
 
-const AuthContext = createContext(null);
+const AuthContext = createContext()
 
-export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [loading, setLoading] = useState(true);
+export function AuthProvider({ children }) {
+    const [user, setUser] = useState(null)
+    const [loading, setLoading] = useState(true)
+
+    // Capture token before Router redirects clear the URL
+    const [urlToken] = useState(() => new URLSearchParams(window.location.search).get('token'))
 
     useEffect(() => {
-        // Read token saved by RequestServiceModule (IdentityServiceUI)
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            const userData = localStorage.getItem('user');
-            setUser(userData ? JSON.parse(userData) : null);
-            setIsAuthenticated(true);
+        const initAuth = async () => {
+            if (urlToken) {
+                localStorage.setItem('accessToken', urlToken)
+                window.history.replaceState({}, '', window.location.pathname)
+            }
+
+            const currentToken = localStorage.getItem('accessToken')
+            if (!currentToken) {
+                setLoading(false)
+                return
+            }
+
+            const savedUser = localStorage.getItem('user')
+            if (savedUser) {
+                setUser(JSON.parse(savedUser))
+            }
+
+            try {
+                const response = await axios.post(
+                    IDENTITY_VERIFY_URL,
+                    {},
+                    { headers: { Authorization: `Bearer ${currentToken}` } }
+                )
+                const verifiedUser = response.data?.data?.user
+                if (verifiedUser) {
+                    localStorage.setItem('user', JSON.stringify(verifiedUser))
+                    setUser(verifiedUser)
+                }
+            } catch (error) {
+                console.error('Token verification failed', error)
+                localStorage.removeItem('accessToken')
+                localStorage.removeItem('user')
+                setUser(null)
+            } finally {
+                setLoading(false)
+            }
         }
-        setLoading(false);
-    }, []);
+
+        initAuth()
+    }, [urlToken])
+
+    const isAuthenticated = !!localStorage.getItem('accessToken')
+    const getToken = () => localStorage.getItem('accessToken')
 
     const logout = () => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        setUser(null);
-        setIsAuthenticated(false);
-        // Redirect to Identity Service UI login page
-        window.location.href = import.meta.env.VITE_IDENTITY_UI_URL || 'http://localhost:3000/login';
-    };
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('user')
+        setUser(null)
+        window.location.href = 'http://localhost:3000/login'
+    }
 
-    // Get token for API calls
-    const getToken = () => localStorage.getItem('accessToken');
+    const login = (userData, loginToken) => {
+        localStorage.setItem('user', JSON.stringify(userData))
+        localStorage.setItem('accessToken', loginToken)
+        setUser(userData)
+    }
 
     return (
-        <AuthContext.Provider value={{ user, isAuthenticated, loading, logout, getToken }}>
+        <AuthContext.Provider value={{ user, loading, isAuthenticated, getToken, logout, login }}>
             {children}
         </AuthContext.Provider>
-    );
-};
+    )
+}
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error('useAuth must be used within AuthProvider');
-    }
-    return context;
-};
+export function useAuth() {
+    return useContext(AuthContext)
+}

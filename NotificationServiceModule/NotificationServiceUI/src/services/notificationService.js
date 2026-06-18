@@ -1,35 +1,22 @@
-import axios from 'axios';
+import api from '../api/axiosClient'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5003/api/v1';
+export const notificationApi = {
+  // New health check method added here to fix the blank page error
+  healthCheck: () => api.get('/health').then((r) => r.data),
 
-const getHeaders = (token) => ({
-  headers: { Authorization: `Bearer ${token}` }
-});
+  getMyNotifications: () => api.get('/notifications/my').then((r) => r.data),
 
-const notificationService = {
-  getMyNotifications: (token) =>
-    axios.get(`${API_URL}/notifications/my`, getHeaders(token)),
+  clearAll: () => api.delete('/notifications/my/all').then((r) => r.data),
 
-  getAllNotifications: (token) =>
-    axios.get(`${API_URL}/notifications`, getHeaders(token)),
+  getById: (id) => api.get(`/notifications/${id}`).then((r) => r.data),
 
-  getById: (id, token) =>
-    axios.get(`${API_URL}/notifications/${id}`, getHeaders(token)),
+  markAsRead: (id) => api.put(`/notifications/${id}/read`, {}).then((r) => r.data),
 
-  markAsRead: (id, token) =>
-    axios.put(`${API_URL}/notifications/${id}/read`, {}, getHeaders(token)),
+  deleteNotification: (id) => api.delete(`/notifications/${id}`).then((r) => r.data),
 
-  deleteNotification: (id, token) =>
-    axios.delete(`${API_URL}/notifications/${id}`, getHeaders(token)),
+  getAllNotifications: () => api.get('/notifications').then((r) => r.data),
 
-  clearAll: (token) =>
-    axios.delete(`${API_URL}/notifications/my/all`, getHeaders(token)),
+  sendNotification: (data) => api.post('/notifications', data).then((r) => r.data)
+}
 
-  sendNotification: (data, token) =>
-    axios.post(`${API_URL}/notifications/send`, data, getHeaders(token)),
-
-  healthCheck: () =>
-    axios.get(`${API_URL}/health`),
-};
-
-export default notificationService;
+export default notificationApi

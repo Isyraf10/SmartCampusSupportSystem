@@ -6,15 +6,20 @@
 const API_CONTRACTS = {
     SERVICE_NAME: 'Notification Service',
     SERVICE_PORT: process.env.PORT || 5003,
-    SERVICE_URL: 'http://localhost:5003',
+    SERVICE_URL: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5003',
+
+    // Connected services
+    IDENTITY_SERVICE_URL: process.env.IDENTITY_SERVICE_URL || 'http://localhost:5000',
+    BOOKING_SERVICE_URL:  process.env.BOOKING_SERVICE_URL  || 'http://localhost:5002',
+    SUPPORT_SERVICE_URL:  process.env.SUPPORT_SERVICE_URL  || 'http://localhost:5004',
 
     NOTIFICATIONS: {
-        GET_MY: '/api/v1/notifications/my',
-        GET_ALL: '/api/v1/notifications',
+        GET_MY:   '/api/v1/notifications/my',
+        GET_ALL:  '/api/v1/notifications',
         GET_BY_ID: '/api/v1/notifications/:id',
-        SEND: '/api/v1/notifications/send',
+        SEND:     '/api/v1/notifications',
         MARK_READ: '/api/v1/notifications/:id/read',
-        DELETE: '/api/v1/notifications/:id',
+        DELETE:   '/api/v1/notifications/:id',
         CLEAR_ALL: '/api/v1/notifications/my/all',
     },
 

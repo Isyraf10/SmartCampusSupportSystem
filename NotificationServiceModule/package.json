@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "Notification Service Module - Smart Campus Support System (SOA)",
   "scripts": {
-    "start:backend": "cd NotificationService && node server.js",
-    "start:frontend": "cd NotificationServiceUI && npm run dev",
-    "install:all": "cd NotificationService && npm install && cd ../NotificationServiceUI && npm install"
-  }
+  "dev": "cd NotificationService && npx nodemon app.js",
+  "start:backend": "cd NotificationService && npm start",
+  "start:frontend": "cd NotificationServiceUI && npm run dev",
+  "install:all": "cd NotificationService && npm install && cd ../NotificationServiceUI && npm install"
+}
 }
