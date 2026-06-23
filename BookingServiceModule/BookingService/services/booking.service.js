@@ -46,7 +46,7 @@ async function createBooking(userId, body, token) {
         status: 'CONFIRMED',
     });
 
-    sendAlert(userId, `Success! You have booked facility ${facilityId} on ${date} at ${startTime}`, token);
+    sendAlert(userId, `Success! You have booked facility "${facility.name}" on ${date} at ${startTime} - ${endTime}`, token);
 
     return booking;
 }

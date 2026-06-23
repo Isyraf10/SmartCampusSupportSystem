@@ -148,4 +148,100 @@ exports.verifyToken = catchAsync(async (req, res) => {
     );
 });
 
+/**
+ * Google OAuth Login/Registration
+ * POST /api/v1/auth/google
+ * Body: { token: "..." }
+ */
+exports.googleLogin = catchAsync(async (req, res) => {
+    const { token } = req.body;
+
+    if (!token) {
+        const { AppError } = require('../utils/errorHandler');
+        throw new AppError('Google ID token is required', 400);
+    }
+
+    // Verify Google ID Token
+    const { verifyGoogleToken } = require('../utils/googleAuth');
+    const googleProfile = await verifyGoogleToken(token);
+
+    const { email, name } = googleProfile;
+    
+    // Check if user already exists
+    let user = await User.findOne({ email: email.toLowerCase() });
+    let isNewUser = false;
+
+    if (user) {
+        // User exists, update lastLogin
+        user.lastLogin = new Date();
+        await user.save();
+    } else {
+        // New user - registration with auto-extracted matric number & role (Option A)
+        isNewUser = true;
+        const crypto = require('crypto');
+        const { hashPassword } = require('../utils/passwordUtils');
+
+        const emailLower = email.toLowerCase();
+        const [prefix, domain] = emailLower.split('@');
+
+        let matricNumber = null;
+        let role = 'student';
+
+        // UMT student matric number pattern: 1 letter followed by 5 digits (e.g. s75717)
+        if (/^[a-z]\d{5}$/i.test(prefix)) {
+            matricNumber = prefix.toUpperCase(); // Normalize to uppercase (e.g. S75717)
+            role = 'student';
+        } else {
+            // Check if staff email (e.g. umt.edu.my or contains staff)
+            if (domain === 'umt.edu.my' || domain.includes('staff')) {
+                role = 'staff';
+            } else {
+                role = 'student'; // Default role
+            }
+        }
+
+        // Generate high entropy random password since it is required in the schema
+        const randomPassword = crypto.randomBytes(32).toString('hex');
+        const hashedPassword = await hashPassword(randomPassword);
+
+        // Create new user
+        user = new User({
+            name,
+            email: emailLower,
+            password: hashedPassword,
+            matricNumber,
+            role,
+            lastLogin: new Date(),
+        });
+
+        await user.save();
+    }
+
+    // Generate tokens
+    const { generateTokens } = require('../utils/jwtUtils');
+    const tokens = generateTokens(user);
+
+    // Format response
+    const formattedUser = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        matricNumber: user.matricNumber || null,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+    };
+
+    res.status(isNewUser ? 201 : 200).json(
+        RESPONSE_CONTRACT.SUCCESS(
+            {
+                user: formattedUser,
+                accessToken: tokens.accessToken,
+                refreshToken: tokens.refreshToken,
+            },
+            isNewUser ? API_CONTRACTS.SUCCESS_MESSAGES.USER_CREATED : API_CONTRACTS.SUCCESS_MESSAGES.LOGIN_SUCCESS
+        )
+    );
+});
+
 module.exports = exports;

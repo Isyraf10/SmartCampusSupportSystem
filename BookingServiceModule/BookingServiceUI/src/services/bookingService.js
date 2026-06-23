@@ -10,7 +10,7 @@ import api from '../api/axiosClient';
 export const bookingApi = {
   // ── Facilities ─────────────────────────────────────────────────────────────
   getFacilities: () =>
-    api.get('/facilities').then((r) => r.data),
+    api.get(`/facilities?_=${Date.now()}`).then((r) => r.data),
 
   createFacility: (data) =>
     api.post('/facilities', data).then((r) => r.data),
@@ -25,7 +25,7 @@ export const bookingApi = {
   // Admin → GET /bookings        (all bookings in the system)
   // User  → GET /bookings/me     (only their own bookings)
   getBookings: (isAdmin) =>
-    api.get(isAdmin ? '/bookings' : '/bookings/me').then((r) => r.data),
+    api.get(isAdmin ? `/bookings?_=${Date.now()}` : `/bookings/me?_=${Date.now()}`).then((r) => r.data),
 
   createBooking: (data) =>
     api.post('/bookings', data).then((r) => r.data),

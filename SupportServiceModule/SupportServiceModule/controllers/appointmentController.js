@@ -1,4 +1,5 @@
 const academicService = require('../services/academicService');
+const AcademicModel = require('../models/academicModel');
 const { sendSystemNotification } = require('../utils/notifier');
 
 exports.bookAdvisor = (req, res) => {
@@ -10,11 +11,12 @@ exports.bookAdvisor = (req, res) => {
 
         const userEmail = req.user.email || req.user.id;
         const pureToken = token ? token.split(' ')[1] || token : '';
+        const appointmentDateStr = new Date(date).toLocaleDateString('en-US', { dateStyle: 'medium' });
 
         await sendSystemNotification(
             userEmail,
             'ANNOUNCEMENT',
-            'Your academic advisor appointment is submitted.',
+            `Your appointment request with advisor ${advisor_name} on ${appointmentDateStr} is submitted.`,
             { appointmentId: result.insertId },
             pureToken
         );
@@ -25,9 +27,38 @@ exports.bookAdvisor = (req, res) => {
 
 exports.cancelAppointment = (req, res) => {
     const appointmentId = req.params.id;
-    academicService.removeAppointment(appointmentId, req.user.id, (err, result) => {
+    const token = req.headers['authorization'];
+    const pureToken = token ? token.split(' ')[1] || token : '';
+
+    // First retrieve details for dynamic notification message
+    AcademicModel.findAppointmentById(appointmentId, req.user.id, (err, appointment) => {
+        if (err || !appointment) {
+            return res.status(404).json({ message: "Appointment not found." });
+        }
+
+        academicService.removeAppointment(appointmentId, req.user.id, async (err, result) => {
+            if (err) return res.status(500).json({ error: err.message });
+            if (result.affectedRows === 0) return res.status(404).json({ message: "Appointment not found." });
+
+            const userEmail = req.user.email || req.user.id;
+            const appointmentDateStr = new Date(appointment.appointment_date).toLocaleDateString('en-US', { dateStyle: 'medium' });
+
+            await sendSystemNotification(
+                userEmail,
+                'ANNOUNCEMENT',
+                `Your appointment request with advisor ${appointment.advisor_name} on ${appointmentDateStr} has been successfully cancelled.`,
+                { appointmentId: appointmentId },
+                pureToken
+            );
+
+            res.json({ message: "Advisor appointment cancelled successfully!" });
+        });
+    });
+};
+
+exports.getAppointments = (req, res) => {
+    academicService.getStudentAppointments(req.user.id, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        if (result.affectedRows === 0) return res.status(404).json({ message: "Appointment not found." });
-        res.json({ message: "Advisor appointment cancelled successfully!" });
+        res.json(result);
     });
 };

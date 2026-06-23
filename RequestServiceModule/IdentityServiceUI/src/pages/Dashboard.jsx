@@ -1,12 +1,6 @@
 /**
  * Dashboard.jsx — requestService frontend
  * Central hub for Smart Campus SOA
- *
- * Token flow:
- *  - Token is stored in localStorage by AuthContext after login
- *  - goToService() appends ?token=<jwt> to the target service URL
- *  - The receiving service (bookingService etc.) reads it on mount,
- *    saves it to its own localStorage, then strips it from the URL
  */
 
 import React from 'react';
@@ -15,29 +9,22 @@ import { useAuth } from '../context/AuthContext';
 import './AuthPages.css';
 
 // ── Service URLs ─────────────────────────────────────────────────────────────
-// Change these to real deployed URLs when you go to production.
 const SERVICE_URLS = {
-  booking:      import.meta.env.VITE_BOOKING_URL      || 'http://localhost:3002',
-  itSupport:    import.meta.env.VITE_IT_SUPPORT_URL   || 'http://localhost:3001',
+  booking:      import.meta.env.VITE_BOOKING_URL      || 'http://localhost:3001',
+  itSupport:    import.meta.env.VITE_IT_SUPPORT_URL   || 'http://localhost:3002',
   notification: import.meta.env.VITE_NOTIFICATION_URL || 'http://localhost:3003',
 };
 
 export default function Dashboard() {
-  const navigate    = useNavigate();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
-
   const token = localStorage.getItem('accessToken');
 
   const handleLogout = () => {
-    logout();           // clears localStorage via AuthContext
+    logout();
     navigate('/login');
   };
 
-  /**
-   * Redirect to a service module with the JWT attached as a query param.
-   * The receiving service reads ?token=, saves it to localStorage,
-   * and strips it from the URL — so the user never sees a re-login page.
-   */
   const goToService = (serviceUrl) => {
     if (!token) {
       alert('Sesi tamat. Sila login semula.');
@@ -47,79 +34,102 @@ export default function Dashboard() {
     window.location.href = `${serviceUrl}?token=${token}`;
   };
 
-  const navBtnStyle = {
-    padding:         '10px 15px',
-    backgroundColor: '#4c51bf',
-    color:           'white',
-    border:          'none',
-    borderRadius:    '6px',
-    cursor:          'pointer',
-    fontSize:        '14px',
-    fontWeight:      'bold',
-    flex:            '1',
-    margin:          '0 5px',
+  // Helper to get initials
+  const getInitials = (name) => {
+    if (!name) return 'U';
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card" style={{ maxWidth: '600px' }}>
-
-        <div className="auth-header">
-          <h1>Welcome to Smart Campus Support System</h1>
-          <p>Central Dashboard</p>
-
-          {/* ── Service navigation buttons ── */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-            <button style={navBtnStyle} onClick={() => goToService(SERVICE_URLS.booking)}>
-              Booking
-            </button>
-            <button style={navBtnStyle} onClick={() => goToService(SERVICE_URLS.itSupport)}>
-              IT Support
-            </button>
-            <button style={navBtnStyle} onClick={() => goToService(SERVICE_URLS.notification)}>
-              Notifications
-            </button>
+    <div className="dashboard-layout">
+      {/* ── Navbar ── */}
+      <nav className="dashboard-navbar">
+        <div className="navbar-brand">Smart Campus System</div>
+        <div className="navbar-actions">
+          <button className="btn-nav-action" onClick={() => goToService(SERVICE_URLS.notification)}>
+            {/* Clean SVG Bell Icon */}
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            Notifications
+          </button>
+          <div className="user-avatar-badge">
+            <div className="avatar-circle">{getInitials(user?.name)}</div>
+            <span>{user?.name || 'User'}</span>
           </div>
         </div>
+      </nav>
 
-        <div style={{ padding: '20px', textAlign: 'center' }}>
+      {/* ── Main Content ── */}
+      <div className="dashboard-content">
+        
+        {/* Welcome Banner */}
+        <div className="welcome-banner">
+          <p>Welcome Dashboard</p>
+          <h2>Welcome, {user?.name || 'User'}!</h2>
+        </div>
 
-          {/* ── User profile card ── */}
-          <p style={{ fontSize: '14px', color: '#666', marginBottom: '10px' }}>
-            User Profile
-          </p>
-          <div style={{
-            backgroundColor: '#f5f5f5',
-            padding:         '15px',
-            borderRadius:    '8px',
-            textAlign:       'left',
-            marginBottom:    '20px',
-          }}>
-            <p style={{ margin: '8px 0' }}><strong>Name:</strong>  {user?.name         || 'N/A'}</p>
-            <p style={{ margin: '8px 0' }}><strong>Email:</strong> {user?.email        || 'N/A'}</p>
-            <p style={{ margin: '8px 0' }}><strong>Role:</strong>  {user?.role         || 'N/A'}</p>
-            {user?.matricNumber && (
-              <p style={{ margin: '8px 0' }}><strong>Matric Number:</strong> {user.matricNumber}</p>
-            )}
+        {/* User Account Identity Card */}
+        <div className="identity-section">
+          <div className="section-label">User Account Identity</div>
+          
+          <div className="identity-header">
+            <div className="avatar-circle-lg">{getInitials(user?.name)}</div>
+            <div>
+              <h3>{user?.name || 'User'}</h3>
+              <span className="role-badge">{user?.role || 'student'}</span>
+            </div>
           </div>
 
-          {/* ── Logout button ── */}
-          <button
-            onClick={handleLogout}
-            style={{
-              width:           '100%',
-              padding:         '12px',
-              backgroundColor: '#e53e3e',
-              color:           'white',
-              border:          'none',
-              borderRadius:    '8px',
-              fontSize:        '16px',
-              fontWeight:      '600',
-              cursor:          'pointer',
-            }}
-          >
-            Logout
+          <div className="identity-details">
+            <div className="detail-field">
+              <div className="detail-field-label">Email Address</div>
+              <div className="detail-field-value">{user?.email || 'N/A'}</div>
+            </div>
+            <div className="detail-field">
+              <div className="detail-field-label">Matric Number</div>
+              <div className="detail-field-value">{user?.matricNumber || 'N/A'}</div>
+            </div>
+          </div>
+
+          <button className="btn-logout-flat" onClick={handleLogout}>
+            Logout Account
           </button>
+        </div>
+
+        {/* Services Navigation Grid */}
+        <div className="services-grid">
+          
+          {/* Card 1: Facility Booking */}
+          <div className="service-card booking-card-accent" onClick={() => goToService(SERVICE_URLS.booking)}>
+            <div className="service-card-icon">
+              {/* Clean SVG Building Icon */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="9" y1="3" x2="9" y2="21" />
+                <line x1="15" y1="3" x2="15" y2="21" />
+                <line x1="3" y1="9" x2="21" y2="9" />
+                <line x1="3" y1="15" x2="21" y2="15" />
+              </svg>
+            </div>
+            <h3>Facility Booking</h3>
+            <p>Manage campus facility and resource slots reservations</p>
+          </div>
+
+          {/* Card 2: Academic Support */}
+          <div className="service-card support-card-accent" onClick={() => goToService(SERVICE_URLS.itSupport)}>
+            <div className="service-card-icon">
+              {/* Clean SVG Graduation Cap Icon */}
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5" />
+              </svg>
+            </div>
+            <h3>Academic Support</h3>
+            <p>Access academic advisor schedules and consultation modules</p>
+          </div>
+
         </div>
 
       </div>

@@ -1,0 +1,12 @@
+# Ignore heavy dependency folders
+**/node_modules/**
+**/build/**
+**/dist/**
+**/.git/**
+**/.vite/**
+
+# Ignore media/logs
+**/*.log
+**/*.png
+**/*.jpg
+**/*.svg

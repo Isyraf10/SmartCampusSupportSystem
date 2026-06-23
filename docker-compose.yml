@@ -1,0 +1,233 @@
+version: '3.8'
+
+services:
+
+  mongo:
+    image: mongo:7
+    container_name: smart-campus-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_DATABASE: smart-campus
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - smart-campus-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ─ Identity Service (Authentication)
+  identity-service:
+    build:
+      context: ./RequestServiceModule/IdentityService
+      dockerfile: Dockerfile
+    container_name: identity-service
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/smart-campus-identity
+      JWT_SECRET: super_key
+      JWT_REFRESH_SECRET: super_key_refresh
+      GOOGLE_CLIENT_ID: "435171560938-kns6n1r4c56dk74gju1dr5cv9a3t5jvf.apps.googleusercontent.com"
+      CORS_ORIGIN: "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003"
+    networks:
+      - smart-campus-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000/api/v1/health', (r) => { if (r.statusCode !== 200) throw new Error(r.statusCode) })"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  identity-frontend:
+    build:
+      context: ./RequestServiceModule/IdentityServiceUI
+      dockerfile: Dockerfile
+    container_name: identity-service-ui
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://localhost:5000/api/v1
+      NODE_ENV: production
+    networks:
+      - smart-campus-network
+    depends_on:
+      identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', (r) => { if (r.statusCode !== 200) throw new Error(r.statusCode) })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # ─ Booking Service
+  booking-service:
+    build:
+      context: ./BookingServiceModule/BookingService
+      dockerfile: Dockerfile
+    container_name: booking-service
+    restart: unless-stopped
+    ports:
+      - "5002:5002"
+    environment:
+      NODE_ENV: production
+      PORT: 5002
+      MONGO_URI: mongodb://mongo:27017/smart-campus-booking
+      IDENTITY_SERVICE_URL: http://identity-service:5000
+      NOTIFICATION_SERVICE_URL: http://notification-service:5004
+      CORS_ORIGIN: "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003"
+    networks:
+      - smart-campus-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+      identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5002/api/v1/health', (r) => { if (r.statusCode !== 200) throw new Error(r.statusCode) })"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  booking-frontend:
+    build:
+      context: ./BookingServiceModule/BookingServiceUI
+      dockerfile: Dockerfile
+    container_name: booking-service-ui
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    environment:
+      NODE_ENV: production
+    networks:
+      - smart-campus-network
+    depends_on:
+      booking-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # ─ Support Service
+  support-service:
+    build:
+      context: ./SupportServiceModule/SupportServiceModule
+      dockerfile: Dockerfile
+    container_name: support-service
+    restart: unless-stopped
+    ports:
+      - "5003:5003"
+    environment:
+      NODE_ENV: production
+      PORT: 5003
+      MONGO_URI: mongodb://mongo:27017/smart-campus-support
+      IDENTITY_SERVICE_URL: http://identity-service:5000
+      NOTIFICATION_SERVICE_URL: http://notification-service:5004
+      CORS_ORIGIN: "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003"
+    networks:
+      - smart-campus-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+      identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5003/api/v1/health', (r) => { if (r.statusCode !== 200) throw new Error(r.statusCode) })"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ─ Notification Service
+  notification-service:
+    build:
+      context: ./NotificationServiceModule/NotificationService
+      dockerfile: Dockerfile
+    container_name: notification-service
+    restart: unless-stopped
+    ports:
+      - "5004:5004"
+    environment:
+      NODE_ENV: production
+      PORT: 5004
+      MONGO_URI: mongodb://mongo:27017/smart-campus-notifications
+      IDENTITY_SERVICE_URL: http://identity-service:5000
+      CORS_ORIGIN: "http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003"
+    networks:
+      - smart-campus-network
+    depends_on:
+      mongo:
+        condition: service_healthy
+      identity-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5004/api/v1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  notification-frontend:
+    build:
+      context: ./NotificationServiceModule/NotificationServiceUI
+      dockerfile: Dockerfile
+    container_name: notification-service-ui
+    restart: unless-stopped
+    ports:
+      - "3003:80"
+    networks:
+      - smart-campus-network
+    depends_on:
+      notification-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  support-frontend:
+    build:
+      context: ./SupportServiceModule/SupportServiceModuleUI
+      dockerfile: Dockerfile
+    container_name: support-service-ui
+    restart: unless-stopped
+    ports:
+      - "3002:80"
+    networks:
+      - smart-campus-network
+    depends_on:
+      support-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  smart-campus-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local

@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { GoogleLogin } from '@react-oauth/google';
 import './AuthPages.css';
 
 export default function Login() {
@@ -11,7 +12,23 @@ export default function Login() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, loginWithGoogle } = useAuth();
+
+    const handleGoogleSuccess = async (credentialResponse) => {
+        setError('');
+        setLoading(true);
+        try {
+            await loginWithGoogle(credentialResponse.credential);
+            navigate('/dashboard');
+        } catch (err) {
+            setError(err || 'Google sign-in failed. Please try again.');
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleError = () => {
+        setError('Google authentication failed. Please try again.');
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -76,6 +93,18 @@ export default function Login() {
                         {loading ? 'Signing in...' : 'Sign In'}
                     </button>
                 </form>
+
+                <div className="oauth-divider">or continue with Google</div>
+
+                <div className="google-btn-container">
+                    <GoogleLogin
+                        onSuccess={handleGoogleSuccess}
+                        onError={handleGoogleError}
+                        theme="outline"
+                        size="large"
+                        width="338"
+                    />
+                </div>
 
                 <div className="auth-footer">
                     <p>

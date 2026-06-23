@@ -1,21 +1,38 @@
 const axios = require('axios');
 
 const authenticateUser = async (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (!token) {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
         return res.status(401).json({ message: "Authorization token is required!" });
     }
     
     try {
-        // Panggil Identity Service Isyraf di port 5000 untuk check token
-        const response = await axios.get('http://localhost:5000/api/v1/users/profile/me', {
-            headers: { Authorization: token }
+        const identityBaseUrl = process.env.IDENTITY_SERVICE_URL || 'http://localhost:5000';
+        const response = await axios.get(`${identityBaseUrl}/api/v1/users/profile/me`, {
+            headers: { Authorization: authHeader }
         });
         
-        req.user = { id: response.data.data.id || response.data.data._id }; 
+        const userData = response.data.data;
+        if (!userData) throw new Error('Empty user data from identity service');
+
+        // Normalize matricNumber to uppercase to match academic_profiles collection
+        const matricNormalized = userData.matricNumber
+            ? String(userData.matricNumber).toUpperCase()
+            : null;
+        
+        req.user = {
+            id: matricNormalized || String(userData.id || userData._id),
+            email: userData.email,
+            name: userData.name,
+            role: userData.role,
+            matricNumber: matricNormalized
+        };
+
+        console.log(`[Auth] Authenticated user: ${req.user.email}, studentId: ${req.user.id}`);
         next();
     } catch (error) {
-        res.status(401).json({ message: "Invalid token or the Identity Service is not running!" });
+        console.error('[AuthMiddleware] Token validation failed:', error.message);
+        res.status(401).json({ message: "Invalid or expired token." });
     }
 };
 

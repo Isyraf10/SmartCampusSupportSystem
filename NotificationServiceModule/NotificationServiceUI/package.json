@@ -4,9 +4,8 @@
   "description": "Notification Service Module - Smart Campus Support System (SOA)",
   "scripts": {
     "dev": "vite",
-    "start:backend": "cd NotificationService && npm start",
-    "start:frontend": "cd NotificationServiceUI && npm run dev",
-    "install:all": "cd NotificationService && npm install && cd ../NotificationServiceUI && npm install"
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
     "axios": "^1.18.0",

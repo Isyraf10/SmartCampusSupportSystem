@@ -16,17 +16,18 @@ async function sendAlert(userId, message, token) {
         return; 
     }
     try {
+        const NOTIF_SERVICE_URL = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:5004';
         console.log(`[Notification] Attempting to send alert to user: ${userId}`);
-        console.log('DEBUG: Notification URL is:', process.env.NOTIFICATION_SERVICE_URL);
+        console.log('DEBUG: Notification URL is:', NOTIF_SERVICE_URL);
         
-    await axios.post(`${process.env.NOTIFICATION_SERVICE_URL}/api/v1/notifications`, 
-        { userId, type: 'BOOKING_CONFIRMATION', message }, 
+        await axios.post(`${NOTIF_SERVICE_URL}/api/v1/notifications`, 
+            { recipientId: userId, type: 'BOOKING_CONFIRMATION', message }, 
             { 
-        headers: { 
-            'Authorization': token.startsWith('Bearer ') ? token : `Bearer ${token}`
-        } 
-    }
-);
+                headers: { 
+                    'Authorization': token.startsWith('Bearer ') ? token : `Bearer ${token}`
+                } 
+            }
+        );
         
         console.log(`[Notification] Alert sent successfully for user: ${userId}`);
         

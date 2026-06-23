@@ -1,7 +1,8 @@
 const axios = require('axios');
 
-// Changed port from 5000 to 5003
-const NOTIF_URL = 'http://localhost:5003/api/v1/notifications';
+const NOTIF_URL = process.env.NOTIFICATION_SERVICE_URL
+    ? `${process.env.NOTIFICATION_SERVICE_URL}/api/v1/notifications`
+    : 'http://localhost:5004/api/v1/notifications';
 
 const sendSystemNotification = async (recipientId, type, message, metadata, token) => {
     try {

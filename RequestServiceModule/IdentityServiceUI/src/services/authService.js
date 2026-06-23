@@ -5,9 +5,27 @@
 
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
 
 const authService = {
+    /**
+     * Login with Google OAuth
+     */
+    loginWithGoogle: async (idToken) => {
+        try {
+            const response = await axios.post(`${API_URL}/auth/google`, { token: idToken });
+            if (response.data.success) {
+                localStorage.setItem('accessToken', response.data.data.accessToken);
+                localStorage.setItem('refreshToken', response.data.data.refreshToken);
+                localStorage.setItem('user', JSON.stringify(response.data.data.user));
+            }
+            return response.data;
+        } catch (error) {
+            console.error("Google Login Error Detail:", error.response?.data);
+            throw error.response?.data?.message || 'Google Login failed. Please try again.';
+        }
+    },
+
     /**
      * Register new user
      */

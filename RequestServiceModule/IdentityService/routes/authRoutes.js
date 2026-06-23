@@ -23,6 +23,11 @@ router.post('/register', authController.register);
 // Body: { email, password }
 router.post('/login', authController.login);
 
+// Google Login User
+// POST /api/v1/auth/google
+// Body: { token }
+router.post('/google', authController.googleLogin);
+
 // Logout User
 // POST /api/v1/auth/logout
 router.post('/logout', authController.logout);

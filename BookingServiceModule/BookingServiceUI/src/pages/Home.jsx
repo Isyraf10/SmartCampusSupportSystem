@@ -7,13 +7,13 @@ import FacilityModal from '../components/FacilityModal';
 export default function Home() {
   const { user, loading, logout, isAdmin } = useAuth();
   const [facilities, setFacilities] = useState([]);
-  const [bookings, setBookings]     = useState([]);
-  const [error, setError]           = useState('');
-  
+  const [bookings, setBookings] = useState([]);
+  const [error, setError] = useState('');
+
   // Clean Modal States
   const [bookingModalFac, setBookingModalFac] = useState(null);
-  const [showCreateFac, setShowCreateFac]     = useState(false);
-  const [editFacData, setEditFacData]         = useState(null);
+  const [showCreateFac, setShowCreateFac] = useState(false);
+  const [editFacData, setEditFacData] = useState(null);
 
   const loadData = useCallback(async () => {
     if (!user) return;
@@ -81,6 +81,15 @@ export default function Home() {
     }
   };
 
+  const handleRedirect = (targetUrl) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      window.location.href = `${targetUrl}?token=${token}`;
+    } else {
+      window.location.href = targetUrl;
+    }
+  };
+
   /* ─── Render ─────────────────────────────────────────── */
   return (
     <div className="app-container">
@@ -89,22 +98,25 @@ export default function Home() {
           <h1 className="page-title">Smart Campus Facility Booking</h1>
           <p className="title-subtitle">Make booking easy and efficient</p>
         </div>
-        
+
         <div className="user-profile-widget">
           <div className="greeting-wrapper">
             <span className="hi-text">Hi, {user?.name || user?.id?.split('@')[0]}</span>
             <span className="role-badge">{user?.role || 'student'}</span>
           </div>
           <div className="header-actions">
-            <button className="btn-home" onClick={() => window.location.href = 'http://localhost:3000/dashboard'}>
+            <button className="btn-home" onClick={() => handleRedirect('http://localhost:3000/dashboard')} title="Go to Identity Dashboard">
               Dashboard
+            </button>
+            <button className="btn-home" onClick={() => handleRedirect('http://localhost:3003')} title="Go to Notifications">
+              Notifications
             </button>
             <button className="btn-logout" onClick={logout}>Logout</button>
           </div>
         </div>
       </header>
 
-      {error && <div className="error-msg" style={{padding: '1rem', background: '#ffebee', color: '#c62828', textAlign: 'center', marginBottom: '1rem', borderRadius: '8px'}}>{error}</div>}
+      {error && <div className="error-msg" style={{ padding: '1rem', background: '#ffebee', color: '#c62828', textAlign: 'center', marginBottom: '1rem', borderRadius: '8px' }}>{error}</div>}
 
       {isAdmin && (
         <div className="admin-bar">
@@ -130,7 +142,7 @@ export default function Home() {
                   <p className="card-detail"><strong>Type:</strong> {fac.type}</p>
                   <p className="card-detail"><strong>Location:</strong> {fac.location}</p>
                   <p className="card-detail"><strong>Capacity:</strong> {fac.capacity} pax</p>
-                  
+
                   <div className="card-actions">
                     {isAdmin ? (
                       <>

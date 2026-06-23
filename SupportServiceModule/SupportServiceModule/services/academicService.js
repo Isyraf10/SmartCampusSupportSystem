@@ -15,3 +15,15 @@ exports.createStudentProfile = (studentId, gpa, cgpa, semester, callback) => {
 exports.createStudentSchedule = (studentId, courseCode, courseName, day, timeSlot, classroom, callback) => {
     AcademicModel.createSchedule(studentId, courseCode, courseName, day, timeSlot, classroom, callback);
 };
+
+exports.bookNewAppointment = (studentId, advisorName, date, token, callback) => {
+    AcademicModel.createAppointment(studentId, advisorName, date, callback);
+};
+
+exports.removeAppointment = (appointmentId, studentId, callback) => {
+    AcademicModel.deleteAppointment(appointmentId, studentId, callback);
+};
+
+exports.getStudentAppointments = (studentId, callback) => {
+    AcademicModel.findAppointmentsByStudentId(studentId, callback);
+};

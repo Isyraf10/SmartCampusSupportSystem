@@ -13,8 +13,7 @@ exports.getProfile = (req, res) => {
 exports.getSchedule = (req, res) => {
     academicService.getStudentSchedule(req.user.id, (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
-        if (result.length === 0) return res.status(404).json({ message: "Class schedule not found." });
-        res.json(result);
+        res.json(Array.isArray(result) ? result : []);
     });
 }; // <-- Tadi dekat sini terpotong chokk, sekarang sudah ada penutup ngam!
 
