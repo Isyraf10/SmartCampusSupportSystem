@@ -1,18 +1,28 @@
-// Kita panggil academicService sbb kod appointment awak sudah dipindahkan ke sini oleh dorang chokk!
-const academicService = require('../services/academicService'); 
+const academicService = require('../services/academicService');
+const { sendSystemNotification } = require('../utils/notifier');
 
-//1. Book Advisor Appointment
 exports.bookAdvisor = (req, res) => {
     const { advisor_name, date } = req.body;
     const token = req.headers['authorization']; 
     
-    academicService.bookNewAppointment(req.user.id, advisor_name, date, token, (err, result) => {
+    academicService.bookNewAppointment(req.user.id, advisor_name, date, token, async (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
+
+        const userEmail = req.user.email || req.user.id;
+        const pureToken = token ? token.split(' ')[1] || token : '';
+
+        await sendSystemNotification(
+            userEmail,
+            'ANNOUNCEMENT',
+            'Your academic advisor appointment is submitted.',
+            { appointmentId: result.insertId },
+            pureToken
+        );
+
         res.json({ message: "Advisor appointment booking submitted successfully!", appointmentId: result.insertId });
     });
 };
 
-//2. Cancel Advisor Appointment
 exports.cancelAppointment = (req, res) => {
     const appointmentId = req.params.id;
     academicService.removeAppointment(appointmentId, req.user.id, (err, result) => {

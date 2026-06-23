@@ -28,6 +28,9 @@ export default function Dashboard() {
     const [sending, setSending] = useState(false)
     const [activeTab, setActiveTab] = useState('my')
     const [serviceOnline, setServiceOnline] = useState(true)
+    
+    const [isEditing, setIsEditing] = useState(false)
+    const [editId, setEditId] = useState(null)
     const token = getToken()
 
     const [sendForm, setSendForm] = useState({
@@ -41,7 +44,9 @@ export default function Dashboard() {
         eventLocation: '',
         eventMerit: '',
         eventFee: 'Free',
-        eventOrganizer: ''
+        eventOrganizer: '',
+        attachmentName: '',
+        attachmentData: ''
     })
 
     const loadNotifications = useCallback(async () => {
@@ -109,16 +114,60 @@ export default function Dashboard() {
         } catch (err) { setError('Failed to clear') }
     }
 
+    const handleEdit = (notif) => {
+        setIsEditing(true)
+        setEditId(notif._id)
+        
+        let recipientId = ''
+        if (notif.targetAudience === 'INDIVIDUAL') {
+            recipientId = notif.userEmail || notif.userId || ''
+        }
+
+        setSendForm({
+            targetAudience: notif.targetAudience || 'ALL',
+            recipientId: recipientId,
+            type: notif.type,
+            message: notif.message,
+            eventName: notif.metadata?.eventName || '',
+            eventDate: notif.metadata?.eventDate || '',
+            eventTime: notif.metadata?.eventTime || '',
+            eventLocation: notif.metadata?.eventLocation || '',
+            eventMerit: notif.metadata?.eventMerit || '',
+            eventFee: notif.metadata?.eventFee || 'Free',
+            eventOrganizer: notif.metadata?.eventOrganizer || '',
+            attachmentName: notif.metadata?.attachmentName || '',
+            attachmentData: notif.metadata?.attachmentData || ''
+        })
+        setActiveTab('send')
+    }
+
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0]
+        if (!file) return
+        
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            setSendForm(prev => ({ 
+                ...prev, 
+                attachmentName: file.name, 
+                attachmentData: reader.result 
+            }))
+        }
+        reader.readAsDataURL(file)
+    }
+
     const handleSend = async () => {
         if (sendForm.targetAudience === 'INDIVIDUAL' && !sendForm.recipientId) {
             setError('Recipient Email or ID is required.')
             return
         }
 
-        let finalMessage = sendForm.message;
-        let metadata = {};
+        let finalMessage = sendForm.message
+        let metadata = {
+            attachmentName: sendForm.attachmentName,
+            attachmentData: sendForm.attachmentData
+        }
 
-        // Route specific validation and payload generation for Events
         if (sendForm.type === 'EVENT_REGISTRATION') {
             if (!sendForm.eventName || !sendForm.eventDate || !sendForm.eventLocation) {
                 setError('Event Name, Date, and Location are strictly required.')
@@ -126,6 +175,7 @@ export default function Dashboard() {
             }
             finalMessage = sendForm.message || `You are invited to ${sendForm.eventName}!`
             metadata = {
+                ...metadata,
                 eventName: sendForm.eventName,
                 eventDate: sendForm.eventDate,
                 eventTime: sendForm.eventTime,
@@ -152,19 +202,29 @@ export default function Dashboard() {
                 metadata: metadata
             }
 
-            await notificationService.sendNotification(payload, token)
+            if (isEditing) {
+                await notificationService.updateNotification(editId, payload, token)
+                setSuccess('Notification updated successfully!')
+            } else {
+                await notificationService.sendNotification(payload, token)
+                setSuccess('Broadcast queued successfully!')
+            }
+            
             setSendForm({ 
                 targetAudience: 'ALL', recipientId: '', type: 'REMINDER', message: '',
-                eventName: '', eventDate: '', eventTime: '', eventLocation: '', eventMerit: '', eventFee: 'Free', eventOrganizer: ''
+                eventName: '', eventDate: '', eventTime: '', eventLocation: '', eventMerit: '', eventFee: 'Free', eventOrganizer: '',
+                attachmentName: '', attachmentData: ''
             })
-            setSuccess('Broadcast queued successfully!')
+            setIsEditing(false)
+            setEditId(null)
+            
             setTimeout(() => setSuccess(''), 3000)
             setActiveTab('all')
             loadNotifications()
         } catch (err) {
             const errorDetail = err.response?.data?.errors?.[0]
             const errorMessage = err.response?.data?.message
-            setError(errorDetail || errorMessage || 'Failed to send notification')
+            setError(errorDetail || errorMessage || 'Failed to process notification')
         } finally {
             setSending(false)
         }
@@ -196,6 +256,13 @@ export default function Dashboard() {
                     </div>
                 </div>
                 <div className="dash-header-right">
+                    <button 
+                    className="btn-outline" 
+               onClick={() => window.location.href = 'http://localhost:3000/dashboard'}
+                style={{ marginRight: '16px', background: 'white', color: '#0f172a', border: '1px solid #cbd5e1' }}
+    >
+                  🏠  Dashboard
+                 </button>
                     <div className="service-status">
                         <span className={`status-dot ${serviceOnline ? '' : 'offline'}`}></span>
                         {serviceOnline ? 'Service Online' : 'Service Offline'}
@@ -232,7 +299,11 @@ export default function Dashboard() {
                             </button>
                             <button
                                 className={`sidebar-btn ${activeTab === 'send' ? 'active' : ''}`}
-                                onClick={() => setActiveTab('send')}
+                                onClick={() => {
+                                    setIsEditing(false)
+                                    setEditId(null)
+                                    setActiveTab('send')
+                                }}
                             >
                                 📤 Send Notification
                             </button>
@@ -331,11 +402,22 @@ export default function Dashboard() {
                                                     ) : (
                                                         n.message
                                                     )}
+
+                                                    {n.metadata && n.metadata.attachmentData && (
+                                                        <div>
+                                                            <a href={n.metadata.attachmentData} download={n.metadata.attachmentName || 'Attachment'} className="attachment-link">
+                                                                📎 Download {n.metadata.attachmentName || 'Attached File'}
+                                                            </a>
+                                                        </div>
+                                                    )}
                                                 </div>
 
                                                 <div className="notif-time">{timeAgo(n.createdAt)}</div>
                                             </div>
                                             <div className="notif-actions">
+                                                {user?.role === 'admin' && (
+                                                    <button className="btn-edit" onClick={() => handleEdit(n)}>✏️ Edit</button>
+                                                )}
                                                 {!n.isRead && (
                                                     <button onClick={() => handleMarkRead(n._id)}>✓ Read</button>
                                                 )}
@@ -350,9 +432,11 @@ export default function Dashboard() {
 
                     {activeTab === 'send' && (
                         <>
-                            <div className="page-header"><h2>Send Notification center</h2></div>
+                            <div className="page-header">
+                                <h2>{isEditing ? 'Edit Notification' : 'Send Notification center'}</h2>
+                            </div>
                             <div className="form-card">
-                                <h3>📢 Create New Broadcast</h3>
+                                <h3>{isEditing ? '✏️ Update Broadcast' : '📢 Create New Broadcast'}</h3>
 
                                 <div className="form-group">
                                     <label>Target Audience *</label>
@@ -395,7 +479,6 @@ export default function Dashboard() {
                                     </select>
                                 </div>
 
-                                {/* CONDITIONAL RENDERING: Event fields vs Standard message box */}
                                 {sendForm.type === 'EVENT_REGISTRATION' ? (
                                     <div className="event-form-fields">
                                         <div className="form-group">
@@ -447,9 +530,24 @@ export default function Dashboard() {
                                     </div>
                                 )}
 
+                                <div className="form-group">
+                                    <label>Attach File (Optional)</label>
+                                    <input type="file" onChange={handleFileUpload} accept=".pdf,.doc,.docx,.png,.jpg,.jpeg" style={{ marginBottom: '8px' }} />
+                                    {sendForm.attachmentName && <div><small style={{ color: '#059669', fontWeight: '500' }}>Attached: {sendForm.attachmentName}</small></div>}
+                                </div>
+
                                 <button className="btn-primary" onClick={handleSend} disabled={sending}>
-                                    {sending ? 'Processing...' : '📢 Dispatch Notification'}
+                                    {sending ? 'Processing...' : (isEditing ? '✏️ Update Notification' : '📢 Dispatch Notification')}
                                 </button>
+                                {isEditing && (
+                                    <button 
+                                        className="btn-outline" 
+                                        onClick={() => { setIsEditing(false); setEditId(null); setActiveTab('all'); }} 
+                                        style={{ marginLeft: '12px' }}
+                                    >
+                                        Cancel Edit
+                                    </button>
+                                )}
                             </div>
                         </>
                     )}

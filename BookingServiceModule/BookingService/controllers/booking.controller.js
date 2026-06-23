@@ -1,9 +1,24 @@
 const bookingService = require('../services/booking.service');
 const catchAsync = require('../utils/catchAsync');
+const { sendSystemNotification } = require('../utils/notifier');
 
 const create = catchAsync(async (req, res) => {
     const token = req.headers.authorization;
     const booking = await bookingService.createBooking(req.user.userId, req.body, token);
+
+    const validUserId = req.user.userId || req.user.id;
+    const pureToken = token ? token.split(' ')[1] || token : '';
+    
+    console.log('[Controller] Handing over this exact ID to Notifier:', validUserId);
+
+    await sendSystemNotification(
+        validUserId,
+        'BOOKING_CONFIRMATION',
+        'Your facility booking is confirmed.',
+        { bookingId: booking._id || booking.id },
+        pureToken
+    );
+
     res.status(201).json(booking);
 });
 

@@ -9,7 +9,7 @@ const getMyNotifications = catchAsync(async (req, res) => {
 
     const audienceTags = ['ALL']
     if (rawRole === 'ADMIN') {
-        audienceTags.push('ADMIN', 'STAFF', 'STUDENT_STAFF', 'LECTURER', 'LECTURER_STUDENT')
+        audienceTags.push('ADMIN')
     } else if (rawRole === 'STAFF') {
         audienceTags.push('STAFF', 'STUDENT_STAFF')
     } else if (rawRole === 'LECTURER') {
